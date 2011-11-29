@@ -1,0 +1,49 @@
+{
+  "name": "givenwhenthen",
+  "version": "0.0.1",
+
+	"description": "BDD semantics for Selenium and Sauce Labs in Node.js",
+	"homepage": "http://mulabs.io/givenwhenthen/",
+	"author": {
+		"name": "Doug Wright",
+		"url": "https://github.com/wright-io"
+	},
+
+  "contributors": [ 
+      { "name": "Phil Cockfield" }
+  ],
+  
+  "main": "./index.js",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/wright-io/givenwhenthen.git"
+	},
+
+  "dependencies": {
+		"open.core": ">= 0.1.177",
+		"soda": ">= 0.2.4",
+		"coffee-script": ">= 1.1.1"
+  },
+
+	"keywords": [
+		"bdd",
+		"tdd",
+		"cucumber",
+		"sauce labs",
+		"selenium",
+		"soda",
+		"testing",
+		"acceptance testing",
+		"integration testing",
+		"behavior driven development",
+		"test driven development",
+		"Dan North"
+	],
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/wright-io/givenwhenthen/blob/master/README"
+		}
+	]
+
+}
