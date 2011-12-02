@@ -3,7 +3,7 @@ Simple web app acceptance testing with [BDD](http://dannorth.net/introducing-bdd
 semantics using Selenium and [Sauce Labs](http://saucelabs.com/).
 
 Based on [Soda](https://github.com/LearnBoost/soda) from the amazing folks at
-[LearnBoot](https://github.com/LearnBoost) 
+[LearnBoost](https://github.com/LearnBoost) 
 
 Writing a story that can be easily run against multiple browsers and operating systems
 is as simple as:
