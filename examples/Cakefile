@@ -1,0 +1,10 @@
+givenwhenthen = require '../../givenwhenthen'
+      
+option '-t', '--throw', 'Throw an exception if any client tests fail.'
+option '-b', '--browser[browser_number]',
+  'Number (1-based) of the browser from config.browsers to use. ' +
+  'If provided, only selected browser will be used.'
+option '-d', '--directory[path]', 'Base directory to use.'
+
+task 'test:acceptance', 'Runs the acceptance tests', (options = {}) ->
+  givenwhenthen.runStories(options)
