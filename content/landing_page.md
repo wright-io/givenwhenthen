@@ -8,7 +8,7 @@ This library lets you easily construct elegant acceptance tests, in straight for
 sentence like statements, for execution using Selenium and the astounding 
 [Sauce Labs](http://saucelabs.com/) service.
 
-#### Standing on the Shoulders of Giants
+##### Standing on the Shoulders of Giants
 We built this tool on top of [Soda](https://github.com/LearnBoost/soda) which was created 
 by the fantastic folks at [LearnBoost](https://github.com/LearnBoost).
 
