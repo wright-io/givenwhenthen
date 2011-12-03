@@ -1,26 +1,30 @@
 # Acceptance Testing Like it Should Be
 
 `Given When Then` brings the beautifully elegant
-[BDD](http://dannorth.net/introducing-bdd/) semantics "Given", "When", "Then" to node!
+[BDD](http://dannorth.net/introducing-bdd/) semantics "**given**", "**when**", and "**then**" 
+to [node](http://nodejs.org/)!
 
 This library lets you easily construct elegant acceptance tests, in straight forward
-sentence like statements, for execution using Selenium and [Sauce Labs](http://saucelabs.com/).
+sentence like statements, for execution using Selenium and astounding 
+[Sauce Labs](http://saucelabs.com/) service.
+
+#### Standing on the Shoulders of Giants
+We built this tool on top of [Soda](https://github.com/LearnBoost/soda) which was created 
+by the fantastic folks at [LearnBoost](https://github.com/LearnBoost).
+
 
 ---
 
-Based on [Soda](https://github.com/LearnBoost/soda) from the amazing folks at
-[LearnBoost](https://github.com/LearnBoost) 
-
-Writing a story that can be easily run against multiple browsers and operating systems
+Writing a story that can be run against multiple browsers and operating systems
 is as simple as:
 
     :coffee
     story 'Executing a Google search',
-      """
+      '''
       As a human 
       I want to perform a search 
       So that I can access the world's information
-      """, ->
+      ''', ->
 
         scenario "Search for info about Node.js", (browser) ->
           browser
@@ -45,31 +49,33 @@ is as simple as:
     
 ## Running Stories
 
-Using `/examples`:  
+Take it for a test drive by looking at the `/examples`:  
 
-1. Get a [Sauce Labs](http://saucelabs.com/) account.
-2. Set the correct sauce account details in `/examples/test/acceptance/config.coffee`
-3. From `/examples`, run `cake test:acceptance`
+1. Get a [Sauce Labs](http://saucelabs.com/) account.  Trial account is free.
+2. Set the your sauce account details in `/examples/test/acceptance/config.coffee`.
+3. From within the `/examples` folder, run `cake test:acceptance`.
 
 To use in your own project:
 
-1. Create the test/acceptance directory
-2. Populate it with your own stories, steps, and config
-3. Execute via your own Cake task or similar (see _/examples/Cakefile_) 
+1. Create the `test/acceptance` directory.
+2. Populate it with your own stories, steps, and config.
+3. Execute via your own [Cake](http://jashkenas.github.com/coffee-script/#cake) 
+   task or similar (see `/examples/Cakefile`) 
 
 ## Writing a story
-GivenWhenThen is a DSL for writing executable stories in the 
-[Dan North format](http://dannorth.net/whats-in-a-story/)
+`Given When Then` is a [DSL](http://en.wikipedia.org/wiki/Domain-specific_language) 
+for writing executable stories in the 
+[Dan North format](http://dannorth.net/whats-in-a-story/).
 
-In a .coffee file, write each story with a description:
+In a `.coffee` file, write each story with a description:
 
     :coffee
     story 'Executing a Google search',
-      """
+      '''
       As a human 
       I want to perform a search 
       So that I can access the world's information
-      """, ->
+      ''', ->
 
 and one or more scenarios:
 
@@ -89,11 +95,11 @@ and one or more scenarios:
             .assertTextPresent('results')
             .assertTextPresent('node.js')
               
-Each scenario has "given", "when", and "then" steps. 
+Each scenario has "**given**", "**when**", and "**then**" steps. 
 
-* Given: Setup the initial conditions for the scenario.
-* When: Take the action the scenario is testing.
-* Then: Assert the conditions expected after taking the tested action.
+- Given: Setup the initial conditions for the scenario.
+- When: Take the action the scenario is testing.
+- Then: Assert the conditions expected after taking the tested action.
 
 Each step contains one or more chained calls to 
 [Selenium actions](http://release.seleniumhq.org/selenium-core/1.0.1/reference.html) 
@@ -116,32 +122,31 @@ as follows:
 
 Multiple steps files can be defined to organize your steps.
 
-## Config
-_config.coffee_ contains the configuration for running the stories.
+## Configuration
+`config.coffee` contains the configuration for running the stories.
 
-* Overall story and Sauce Labs configuration.
-* Browser / OS definitions.
-  * Stories will be run against each browser/os configuration defined.
+- Overall story and Sauce Labs configuration.
+- Browser / OS definitions.
+  - Stories will be run against each browser/os configuration defined.
 
 ## Skipping / explicitly selecting stories and scenarios
-* To skip one or more stories or scenarios, prefix the story or scenario with 'x'
-  * e.g. `xstory` or `xscenario`
-* To select only one or more stories or scenarios, prefix the story or scenario with '$'
-  * e.g. `$story` or `$scenario`
+- To skip one or more stories or scenarios, prefix the story or scenario with 'x'
+  - e.g. `xstory` or `xscenario`
+- To select only one or more stories or scenarios, prefix the story or scenario with '$'
+  - e.g. `$story` or `$scenario`
 
 ## Authors
-* Doug Wright [wright-io](https://github.com/wright-io)
-* Phil Cockfield [philcockfield](https://github.com/philcockfield)
+- Doug Wright [wright-io](https://github.com/wright-io)
+- Phil Cockfield [philcockfield](https://github.com/philcockfield)
 
 ## Background
 In addition to being influenced, and based on [Sauce Labs](http://saucelabs.com/), 
-Selenium, and [Soda](https://github.com/LearnBoost/soda), GiveWhenThen is also heavily 
+Selenium, and [Soda](https://github.com/LearnBoost/soda), `Give When Then` is also heavily 
 indebted to the [BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) 
-and [Cucumber](http://cukes.info/) (and all of the efforts that BDD and Cucumber 
-are indebted to.  It's cucumbers all the way down baby!).
+and [Cucumber](http://cukes.info/), and of course all of the efforts that BDD and Cucumber 
+are indebted to.  It's cucumbers all the way down baby!
 
 ## License
-
 The [MIT License](http://www.opensource.org/licenses/mit-license.php) (MIT)  
 Copyright © 2011 Phil Cockfield, Doug Wright
 
