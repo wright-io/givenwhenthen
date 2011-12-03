@@ -25,6 +25,7 @@ describe 'util/acceptance', ->
         end: (err) ->
         execute: ->
           return mock.browser
+        setContext: ->
     
     # The way that acceptance class gets the data files.
     spyOn(fsUtil, 'evaluateFilesSync')    
@@ -35,7 +36,11 @@ describe 'util/acceptance', ->
     spyOn(mock.browser, 'execute').andReturn mock.browser
     spyOn(soda, 'createSauceClient').andReturn mock.browser
     spyOn(mock.browser.chain, 'session').andReturn mock.browser
-    spyOn(mock.browser, 'testComplete').andReturn mock.browser
+    
+    # setContext takes a contextString to set. We're using it to set pass fail on the test.
+    spyOn(mock.browser, 'setContext').andCallFake (contextString, callback) -> callback()
+    
+    spyOn(mock.browser, 'testComplete').andCallFake (callback) -> callback()
     # This method is called when the async test finishes so we need to mock it to 
     # get out callback called
     spyOn(mock.browser, 'end').andCallFake (callback) -> callback null   
@@ -177,8 +182,9 @@ describe 'util/acceptance', ->
       acceptance.runStories()
   
       # Verify.
-      expect(mock.browser.testComplete.callCount).toEqual 2
       expect(mock.browser.end.callCount).toEqual 2
+      expect(mock.browser.setContext.callCount).toEqual 2
+      expect(mock.browser.testComplete.callCount).toEqual 2
   
     it 'correctly configures the soda client', ->
       # Call method under test.
@@ -223,23 +229,27 @@ describe 'util/acceptance', ->
       expect(at_tools.addGivenWhenThenToSoda).toHaveBeenCalled()
   
     describe 'success reporting', ->
-      it 'reports success when all stories pass', ->
+      beforeEach ->
         # Call method under test.
         acceptance.runStories()
-    
+      
+      it 'reports success when all stories pass', ->
         # Verify.
         expect(util.log.argsForCall[1][0]).toContain("Done")
         expect(util.log.argsForCall[1][1]).toEqual(color.green)
       
       it 'prints a green dot for every successful test that is executed', ->
-        # Call method under test.
-        acceptance.runStories()
-    
+        # Verify.
         expect(core.util.log.append.argsForCall[0][0]).toEqual('.')
         expect(core.util.log.append.argsForCall[0][1]).toEqual(color.green)
         expect(core.util.log.append.argsForCall[1][0]).toEqual('.')
         expect(core.util.log.append.argsForCall[1][1]).toEqual(color.green)
         expect(core.util.log.append.callCount).toEqual 2
+        
+      it 'sets success on the sauce test', ->
+        # Verify.
+        successContext = 'sauce:job-info={"passed": true}'
+        expect(mock.browser.setContext.argsForCall[0][0]).toEqual(successContext)
     
     describe 'failure reporting', ->
     
@@ -296,6 +306,14 @@ describe 'util/acceptance', ->
           
         expect(global.Error).toHaveBeenCalled()
         expect(exceptionThrown).toBeTruthy()
+        
+      it 'sets failure on the sauce test', ->
+        # Call method under test.
+        acceptance.runStories()
+        
+        # Verify.
+        failureContext = 'sauce:job-info={"passed": false}'
+        expect(mock.browser.setContext.argsForCall[0][0]).toEqual(failureContext)
   
   ###
     These tests need to run against specially configured sample stories that have

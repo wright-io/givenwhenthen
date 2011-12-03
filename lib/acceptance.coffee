@@ -73,18 +73,20 @@ module.exports =
             # (`session()` returns the client).
             # Then execute finalization against the client returned from `scenario`.
             scenario(browser.chain.session())
-              .testComplete()
               .end (err) ->
-                if err?
-                  err.storyTitle = title
-                  err.browserConfig = browserConfig
-                  errors.push err
-                  #throw err
+                context = "sauce:job-info={\"passed\": #{!err?}}"
+
+                browser.setContext context, ->
+                  browser.testComplete ->
+                    if err?
+                      err.storyTitle = title
+                      err.browserConfig = browserConfig
+                      errors.push err
+                      
+                    log.append '.', if err? then color.red else color.green
                 
-                log.append '.', if err? then color.red else color.green
-                
-                # Check for completion and, if complete, report success or errors.
-                onComplete()
+                    # Check for completion and, if complete, report success or errors.
+                    onComplete()
 
 ###
 Global DSL: Represents a user-story - containing one or more scenarios.
