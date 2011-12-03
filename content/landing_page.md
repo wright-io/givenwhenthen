@@ -1,7 +1,7 @@
 # Acceptance Testing Like it Should Be
 
 `Given When Then` brings the beautifully elegant
-[BDD](http://dannorth.net/introducing-bdd/) semantics "**given**", "**when**", and "**then**" 
+[BDD](http://dannorth.net/introducing-bdd/) semantics **given**, **when**, and **then**
 to [node.js](http://nodejs.org/).
 
 This library lets you easily construct elegant acceptance tests, in straight forward
