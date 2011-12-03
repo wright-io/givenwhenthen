@@ -121,8 +121,9 @@ This kind of functionality can be defined in steps and referred to in scenarios 
         .given "I am on the homepage", -> 
           browser.execute(steps.visitHomepage())
 
-Steps are defined in *_steps.coffee files. Multiple steps per file can be defined 
+Steps are defined in `*_steps.coffee` files. Multiple steps per file can be defined 
 as follows:  
+
 `steps.visitHomepage = -> (browser) -> browser.open '/'`
 
 Multiple steps files can be defined to organize your steps sensibly.
