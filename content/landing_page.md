@@ -2,10 +2,10 @@
 
 `Given When Then` brings the beautifully elegant
 [BDD](http://dannorth.net/introducing-bdd/) semantics "**given**", "**when**", and "**then**" 
-to [node](http://nodejs.org/)!
+to [node.js](http://nodejs.org/).
 
 This library lets you easily construct elegant acceptance tests, in straight forward
-sentence like statements, for execution using Selenium and astounding 
+sentence like statements, for execution using Selenium and the astounding 
 [Sauce Labs](http://saucelabs.com/) service.
 
 #### Standing on the Shoulders of Giants
@@ -49,7 +49,7 @@ is as simple as:
     
 ## Running Stories
 
-Take it for a test drive by looking at the `/examples`:  
+Take it for a test drive by looking at the `/examples` folder:  
 
 1. Get a [Sauce Labs](http://saucelabs.com/) account.  Trial account is free.
 2. Set the your sauce account details in `/examples/test/acceptance/config.coffee`.
@@ -62,7 +62,7 @@ To use in your own project:
 3. Execute via your own [Cake](http://jashkenas.github.com/coffee-script/#cake) 
    task or similar (see `/examples/Cakefile`) 
 
-## Writing a story
+## Writing a Story
 `Given When Then` is a [DSL](http://en.wikipedia.org/wiki/Domain-specific_language) 
 for writing executable stories in the 
 [Dan North format](http://dannorth.net/whats-in-a-story/).
@@ -97,30 +97,35 @@ and one or more scenarios:
               
 Each scenario has "**given**", "**when**", and "**then**" steps. 
 
-- Given: Setup the initial conditions for the scenario.
-- When: Take the action the scenario is testing.
-- Then: Assert the conditions expected after taking the tested action.
+- **Given**: Setup the initial conditions for the scenario.
+- **When**: Take the action the scenario is testing.
+- **Then**: Assert the conditions expected after taking the tested action.
 
 Each step contains one or more chained calls to 
 [Selenium actions](http://release.seleniumhq.org/selenium-core/1.0.1/reference.html) 
-in the form of browser.someSeleneseCommand
+in the form of `browser.someSeleneseCommand`.
 
-Each step (given, when, then) can have an arbitrary number of `and` steps following it
+Each step (`given`, `when`, `then`) can have an arbitrary number of `and` steps following it
 (see above example).
 
 ## Steps
-Often there are steps that are repeated throughout many scenarios 
-(e.g. "visit homepage", "sign in").
+Often there are steps that are repeated throughout many scenarios,
+for example "visit homepage" or "sign in".
 
 This kind of functionality can be defined in steps and referred to in scenarios via 
-`browser.execute()`.  (E.g. `browser.execute(steps.visitHomepage())` as in the above 
-example).
+`browser.execute()`:
+
+    :coffee
+    scenario "Search for info about Node.js", (browser) ->
+      browser
+        .given "I am on the homepage", -> 
+          browser.execute(steps.visitHomepage())
 
 Steps are defined in *_steps.coffee files. Multiple steps per file can be defined 
 as follows:  
 `steps.visitHomepage = -> (browser) -> browser.open '/'`
 
-Multiple steps files can be defined to organize your steps.
+Multiple steps files can be defined to organize your steps sensibly.
 
 ## Configuration
 `config.coffee` contains the configuration for running the stories.
@@ -129,10 +134,10 @@ Multiple steps files can be defined to organize your steps.
 - Browser / OS definitions.
   - Stories will be run against each browser/os configuration defined.
 
-## Skipping / explicitly selecting stories and scenarios
-- To skip one or more stories or scenarios, prefix the story or scenario with 'x'
+## Skipping / Explicitly Selecting Stories and Scenarios
+- To skip one or more stories or scenarios, prefix the story or scenario with `x`
   - e.g. `xstory` or `xscenario`
-- To select only one or more stories or scenarios, prefix the story or scenario with '$'
+- To select only one or more stories or scenarios, prefix the story or scenario with `$`
   - e.g. `$story` or `$scenario`
 
 ## Authors
