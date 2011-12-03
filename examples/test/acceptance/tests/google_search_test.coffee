@@ -13,9 +13,10 @@ story 'Executing a Google search',
           browser.type('q', 'nodejs')
         .and "submit the search", ->
           browser.click('btnK')
-        .then "I see the correct title", ->
-          browser.assertTitle('nodejs - Google Search')
-        .and "I see search results", ->
+        .then "I see search results", ->
+          browser.assertTextPresent('results')
+        .and "the results contain information about nodejs", ->
           browser
-            .assertTextPresent('results')
             .assertTextPresent('node.js')
+            .assertTextPresent('nodejs.org')
+            
