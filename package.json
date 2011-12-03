@@ -1,6 +1,6 @@
 {
   "name": "givenwhenthen",
-  "version": "0.0.5",
+  "version": "0.0.6",
 
 	"description": "BDD semantics for Selenium and Sauce Labs in Node.js",
 	"homepage": "http://mulabs.io/givenwhenthen/",
