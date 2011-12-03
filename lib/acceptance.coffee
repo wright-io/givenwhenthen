@@ -68,7 +68,7 @@ module.exports =
           title = "#{story.title}: #{scenario.title}"
           browser = createBrowser title, serverConfig, browserConfig
           
-          do (title, browserConfig) ->
+          do (title, browser, browserConfig) ->
             # Invoke the scenario with the prepared browser client.
             # (`session()` returns the client).
             # Then execute finalization against the client returned from `scenario`.
