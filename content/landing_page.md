@@ -150,7 +150,7 @@ For example:
 
 See Sauce Labs for the list of available browser/OS configurations.
 
-## Skipping / Explicitly Selecting Stories and Scenarios
+## Skipping or Isolating Stories and Scenarios
 - To skip one or more stories or scenarios, prefix the story or scenario with `x`
   - e.g. `xstory` or `xscenario`
 - To select only one or a set of stories or scenarios, prefix the story or scenario with `$`
