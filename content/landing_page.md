@@ -15,11 +15,11 @@ is as simple as:
 
     :coffee
     story 'Executing a Google search',
-      '''
+      """
       As a human 
       I want to perform a search 
       So that I can access the world's information
-      ''', ->
+      """, ->
 
         scenario "Search for info about Node.js", (browser) ->
           browser
@@ -66,11 +66,11 @@ In a `.coffee` file, write each story with a description:
 
     :coffee
     story 'Executing a Google search',
-      '''
+      """
       As a human 
       I want to perform a search 
       So that I can access the world's information
-      ''', ->
+      """, ->
 
 and one or more scenarios:
 
