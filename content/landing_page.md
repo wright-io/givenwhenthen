@@ -10,7 +10,7 @@ Built on top of [Soda](https://github.com/LearnBoost/soda) from the fantastic fo
 
 ---
 
-Writing a story that can be run against multiple browsers and operating systems
+Writing a story to be run against multiple browsers and operating systems
 is as simple as:
 
     :coffee
@@ -161,10 +161,11 @@ See Sauce Labs for the list of available browser/OS configurations.
 - Phil Cockfield [philcockfield](https://github.com/philcockfield)
 
 ## Background
-In addition to being influenced, and based on [Sauce Labs](http://saucelabs.com/), 
-Selenium, and [Soda](https://github.com/LearnBoost/soda), `Given When Then` is also heavily 
-indebted to the [BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) 
-and [Cucumber](http://cukes.info/), and of course all of the efforts that BDD and Cucumber 
+In addition to being built on top op [Sauce Labs](http://saucelabs.com/), 
+Selenium, and [Soda](https://github.com/LearnBoost/soda), `Given When Then` is heavily 
+influenced by [Cucumber](http://cukes.info/) and the 
+[BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) 
+in general.  And in turn all of the efforts that BDD and Cucumber 
 are indebted to.  It's cucumbers all the way down baby!
 
 ## License
