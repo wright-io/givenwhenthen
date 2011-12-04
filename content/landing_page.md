@@ -1,16 +1,11 @@
-# Acceptance Testing Like it Should Be
+# Simple, powerful acceptance testing for [node.js](http://nodejs.org/).
 
-`Given When Then` brings the beautifully elegant
-[BDD](http://dannorth.net/introducing-bdd/) semantics **given**, **when**, and **then**
-to [node.js](http://nodejs.org/).
+* Construct acceptance tests with [BDD](http://dannorth.net/introducing-bdd/) 
+semantics in straight forward sentence like statements. 
+* Execute your tests in the cloud using Selenium on [Sauce Labs](http://saucelabs.com/).
 
-This library lets you easily construct elegant acceptance tests, in straight forward
-sentence like statements, for execution using Selenium and the astounding 
-[Sauce Labs](http://saucelabs.com/) service.
-
-##### Standing on the Shoulders of Giants
-We built this tool on top of [Soda](https://github.com/LearnBoost/soda) which was created 
-by the fantastic folks at [LearnBoost](https://github.com/LearnBoost).
+Built on top of [Soda](https://github.com/LearnBoost/soda) from the fantastic folks at 
+[LearnBoost](https://github.com/LearnBoost).
 
 
 ---
@@ -138,7 +133,7 @@ Multiple steps files can be defined to organize your steps sensibly.
 ## Skipping / Explicitly Selecting Stories and Scenarios
 - To skip one or more stories or scenarios, prefix the story or scenario with `x`
   - e.g. `xstory` or `xscenario`
-- To select only one or more stories or scenarios, prefix the story or scenario with `$`
+- To select only one or a set of stories or scenarios, prefix the story or scenario with `$`
   - e.g. `$story` or `$scenario`
 
 ## Authors
@@ -147,7 +142,7 @@ Multiple steps files can be defined to organize your steps sensibly.
 
 ## Background
 In addition to being influenced, and based on [Sauce Labs](http://saucelabs.com/), 
-Selenium, and [Soda](https://github.com/LearnBoost/soda), `Give When Then` is also heavily 
+Selenium, and [Soda](https://github.com/LearnBoost/soda), `Given When Then` is also heavily 
 indebted to the [BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) 
 and [Cucumber](http://cukes.info/), and of course all of the efforts that BDD and Cucumber 
 are indebted to.  It's cucumbers all the way down baby!
