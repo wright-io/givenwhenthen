@@ -1,8 +1,8 @@
 # Simple, powerful acceptance testing for [node.js](http://nodejs.org/).
 
-* Construct acceptance tests with [BDD](http://dannorth.net/introducing-bdd/) 
-semantics in straightforward, sentence-like statements. 
-* Execute your tests in the cloud using Selenium on [Sauce Labs](http://saucelabs.com/).
+- Construct acceptance tests with [BDD](http://dannorth.net/introducing-bdd/) 
+  semantics in straightforward, sentence-like statements. 
+- Execute your tests in the cloud using Selenium on [Sauce Labs](http://saucelabs.com/).
 
 Built on top of [Soda](https://github.com/LearnBoost/soda) from the fantastic folks at 
 [LearnBoost](https://github.com/LearnBoost).
