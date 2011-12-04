@@ -130,6 +130,25 @@ Multiple steps files can be defined to organize your steps sensibly.
 - Browser / OS definitions.
   - Stories will be run against each browser/os configuration defined.
 
+For example:
+
+    :coffee
+    config.sauceLabs =
+      'url':                  'http://www.google.com/'
+      'username':             'sauce_labs_username'
+      'access-key':           'sauce_labs_access_key'
+      'max-duration':         "100"
+    
+    config.browsers = [
+      {
+          'os':               'Linux'
+          'browser':          'firefox'
+          'browser-version':  '7'
+      }
+    ]
+
+See Sauce Labs for the list of available browser/OS configurations.
+
 ## Skipping / Explicitly Selecting Stories and Scenarios
 - To skip one or more stories or scenarios, prefix the story or scenario with `x`
   - e.g. `xstory` or `xscenario`
