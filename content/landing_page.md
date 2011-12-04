@@ -119,7 +119,8 @@ This kind of functionality can be defined in steps and referred to in scenarios 
 Steps are defined in `*_steps.coffee` files. Multiple steps per file can be defined 
 as follows:  
 
-`steps.visitHomepage = -> (browser) -> browser.open '/'`
+    :coffee
+    steps.visitHomepage = -> (browser) -> browser.open '/'
 
 Multiple steps files can be defined to organize your steps sensibly.
 
