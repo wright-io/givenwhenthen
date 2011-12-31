@@ -1,4 +1,4 @@
-$story 'WD test',
+story 'WD test',
   """
   As a Developer
   I want to create a node.js test runner with BDD semantics using SauceLabs and Selenium 2

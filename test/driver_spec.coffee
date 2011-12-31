@@ -630,6 +630,7 @@ describe 'driver', ->
       
       
       describe 'internal functionality', ->
+        # TODO: Actually might be able to get that into the above by checking the js returned.
         
         it 'creates a div containing the specified text', ->
           

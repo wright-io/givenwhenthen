@@ -1,4 +1,4 @@
-$story 'Executing a Google search',
+story 'Executing a Google search',
   """
   As a human 
   I want to perform a search 

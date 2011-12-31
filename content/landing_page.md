@@ -2,10 +2,7 @@
 
 - Construct acceptance tests with [BDD](http://dannorth.net/introducing-bdd/) 
   semantics in straightforward, sentence-like statements. 
-- Execute your tests in the cloud using Selenium on [Sauce Labs](http://saucelabs.com/).
-
-Built on top of [Soda](https://github.com/LearnBoost/soda) from the fantastic folks at 
-[LearnBoost](https://github.com/LearnBoost).
+- Execute your tests in the cloud using Selenium 2 on [Sauce Labs](http://saucelabs.com/).
 
 
 ---
@@ -24,11 +21,11 @@ is as simple as:
         scenario "Search for info about Node.js", (browser) ->
           browser
             .given "I am on the homepage", -> 
-              browser.execute(steps.visitHomepage())
+              browser.step(steps.visitHomepage())
             .when "I enter search terms", ->
-              browser.type('q', 'nodejs')
+              browser.typeInElement('q', 'nodejs', using:'name')
             .and "submit the search", ->
-              browser.click('btnK')
+              browser.clickElement('btnG', using:'name')
             .then "I see search results", ->
               browser.assertTextPresent('results')
             .and "the results contain information about nodejs", ->
@@ -78,11 +75,11 @@ and one or more scenarios:
     scenario "Search for info about Node.js", (browser) ->
       browser
         .given "I am on the homepage", -> 
-          browser.execute(steps.visitHomepage())
+          browser.step(steps.visitHomepage())
         .when "I enter search terms", ->
-          browser.type('q', 'nodejs')
+          browser.typeInElement('q', 'nodejs', using:'name')
         .and "submit the search", ->
-          browser.click('btnK')
+          browser.clickElement('btnG', using:'name')
         .then "I see search results", ->
           browser.assertTextPresent('results')
         .and "the results contain information about nodejs", ->
@@ -114,13 +111,13 @@ This kind of functionality can be defined in steps and referred to in scenarios 
     scenario "Search for info about Node.js", (browser) ->
       browser
         .given "I am on the homepage", -> 
-          browser.execute(steps.visitHomepage())
+          browser.step(steps.visitHomepage())
 
 Steps are defined in `*_steps.coffee` files. Multiple steps per file can be defined 
 as follows:  
 
     :coffee
-    steps.visitHomepage = -> (browser) -> browser.open '/'
+    steps.visitHomepage = -> (browser) -> browser.get 'http://www.google.com'
 
 Multiple steps files can be defined to organize your steps sensibly.
 
@@ -134,17 +131,23 @@ Multiple steps files can be defined to organize your steps sensibly.
 For example:
 
     :coffee
-    config.sauceLabs =
-      'url':                  'http://www.google.com/'
-      'username':             'sauce_labs_username'
-      'access-key':           'sauce_labs_access_key'
-      'max-duration':         "100"
-    
+    config.credentials =
+      'username':   'sauce_labs_username'
+      'access-key': 'sauce_labs_access_key'
+  
+    config.settings =
+      'max-duration': '180'
+
     config.browsers = [
       {
-          'os':               'Linux'
-          'browser':          'firefox'
-          'browser-version':  '7'
+        'platform':     'VISTA'
+        'browserName':  'firefox'
+        'version':      '7'
+      }
+      {
+        'platform':     'LINUX'
+        'browserName':  'firefox'
+        'version':      '7'
       }
     ]
 
@@ -161,12 +164,11 @@ See Sauce Labs for the list of available browser/OS configurations.
 - Phil Cockfield [philcockfield](https://github.com/philcockfield)
 
 ## Design Sources
-In addition to being built on top op [Sauce Labs](http://saucelabs.com/), 
-Selenium, and [Soda](https://github.com/LearnBoost/soda), `Given When Then` is heavily 
-influenced by [Cucumber](http://cukes.info/) and the 
-[BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) 
-in general - and in turn all of the efforts that BDD and Cucumber 
-are indebted to.  It's cucumbers all the way down baby!
+In addition to being built on top op [Sauce Labs](http://saucelabs.com/) 
+and Selenium 2, `Given When Then` is heavily influenced by [Cucumber](http://cukes.info/) 
+and the [BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) in general 
+- and in turn all of the efforts that BDD and Cucumber are indebted to. 
+It's cucumbers all the way down baby!
 
 ## License
 The [MIT License](http://www.opensource.org/licenses/mit-license.php) (MIT)  
