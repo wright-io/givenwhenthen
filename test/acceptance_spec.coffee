@@ -1,12 +1,11 @@
 CoffeeScript  = require 'coffee-script'
 core          = require 'open.core'
-soda          = require 'soda'
 util          = core.util
-fsUtil        = require '../lib/fs.coffee'
-acceptance    = require '../lib/acceptance.coffee'
-at_tools      = require '../lib/acceptance_tools.coffee'
+fsUtil        = require '../lib/fs'
+acceptance    = require '../lib/acceptance'
+driver        = require '../lib/driver'
 
-describe 'util/acceptance', ->
+describe 'acceptance', ->
   mock = null
   
   beforeEach ->
@@ -16,33 +15,26 @@ describe 'util/acceptance', ->
     
     # Prepare mocks and spies.
     mock =
-      # Mocking methods on soda.Client (returned as `browser`).
+      # Mocking methods on Client (returned as `browser`).
       # These get called as a part of running a scenario.
       browser:
-        chain: 
-          session: ->
-        testComplete: ->
+        init: ->
         end: (err) ->
-        execute: ->
+        step: ->
           return mock.browser
-        setContext: ->
     
     # The way that acceptance class gets the data files.
     spyOn(fsUtil, 'evaluateFilesSync')    
     
-    # The methods we are mocking on soda.
+    # The methods we are mocking on the client.
     #
-    # These methods all chain, so need to both be called on and return the browser.
-    spyOn(mock.browser, 'execute').andReturn mock.browser
-    spyOn(soda, 'createSauceClient').andReturn mock.browser
-    spyOn(mock.browser.chain, 'session').andReturn mock.browser
+    # Some of these methods chain, so need to both be called on and return the browser.
+    spyOn(mock.browser, 'init')
+    spyOn(mock.browser, 'step').andReturn mock.browser
+    spyOn(driver, 'Client').andReturn mock.browser
     
-    # setContext takes a contextString to set. We're using it to set pass fail on the test.
-    spyOn(mock.browser, 'setContext').andCallFake (contextString, callback) -> callback()
-    
-    spyOn(mock.browser, 'testComplete').andCallFake (callback) -> callback()
     # This method is called when the async test finishes so we need to mock it to 
-    # get out callback called
+    # get our callback called.
     spyOn(mock.browser, 'end').andCallFake (callback) -> callback null   
 
     # Spying on the core.util.log functions so we can check appropriate logging.
@@ -52,10 +44,11 @@ describe 'util/acceptance', ->
     appendSpy = util.log.append
     spyOn(util, 'log')
     util.log.append = appendSpy
-  
+
+
   ###
-    These are tests that need to run against multiple stories being loaded from the
-    mock data files (mockDataLoading basicStoriesTestSet())
+  These are tests that need to run against multiple stories being loaded from the
+  mock data files (mockDataLoading basicStoriesTestSet())
   ###
   describe 'multi-story tests', ->
     
@@ -67,36 +60,37 @@ describe 'util/acceptance', ->
       acceptance.runStories()
   
       # Verify.
-      # Make sure the soda client was correctly created for each sample story supplied.
-      expect(soda.createSauceClient.argsForCall[0][0]['name'])
+      # Make sure the client was correctly created for each sample story supplied.
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
         .toEqual 'Visiting Google: Homepage view'
-      expect(soda.createSauceClient.argsForCall[0][0]['os'])
-        .toEqual 'Windows 2003'
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+        .toEqual 'VISTA'
   
-      expect(soda.createSauceClient.argsForCall[1][0]['name'])
+      expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
         .toEqual 'Visiting Google: Homepage view'
-      expect(soda.createSauceClient.argsForCall[1][0]['os'])
-        .toEqual 'Linux'
+      expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+        .toEqual 'LINUX'
         
-      expect(soda.createSauceClient.argsForCall[2][0]['name'])
+      expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].name)
         .toEqual 'Visiting Google: scenario2'
-      expect(soda.createSauceClient.argsForCall[2][0]['os'])
-        .toEqual 'Windows 2003'
-  
-      expect(soda.createSauceClient.argsForCall[3][0]['name'])
+      expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].platform)
+        .toEqual 'VISTA'
+        
+      expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].name)
         .toEqual 'Visiting Google: scenario2'
-      expect(soda.createSauceClient.argsForCall[3][0]['os'])
-        .toEqual 'Linux'
-    
-      expect(soda.createSauceClient.argsForCall[4][0]['name'])
+      expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].platform)
+        .toEqual 'LINUX'
+          
+      expect(driver.Client.argsForCall[4][0]['desiredCapabilities'].name)
         .toEqual 'Executing a search: Search for topic with many results'
-      expect(soda.createSauceClient.argsForCall[4][0]['os'])
-        .toEqual 'Windows 2003'
-    
-      expect(soda.createSauceClient.argsForCall[5][0]['name'])
+      expect(driver.Client.argsForCall[4][0]['desiredCapabilities'].platform)
+        .toEqual 'VISTA'
+          
+      expect(driver.Client.argsForCall[5][0]['desiredCapabilities'].name)
         .toEqual 'Executing a search: Search for topic with many results'
-      expect(soda.createSauceClient.argsForCall[5][0]['os'])
-        .toEqual 'Linux'
+      expect(driver.Client.argsForCall[5][0]['desiredCapabilities'].platform)
+        .toEqual 'LINUX'
+
 
     it 'prints a summary of the acceptance test suite on execution', ->
       # Call method under test.
@@ -108,10 +102,11 @@ describe 'util/acceptance', ->
       
       expect(util.log.argsForCall[0][0]).toEqual(summary)
       expect(util.log.argsForCall[0][1]).toEqual(color.blue)
-  
+
+
   ###
-    These are tests that need to run against a single story being loaded from the
-    mock data files (mockDataLoading singleStoryTestSet())
+  These are tests that need to run against a single story being loaded from the
+  mock data files (mockDataLoading singleStoryTestSet())
   ###    
   describe 'single story tests', ->
     
@@ -136,7 +131,8 @@ describe 'util/acceptance', ->
         expect(fsUtil.evaluateFilesSync.argsForCall[2][0])
           .toEqual baseDirectory
         expect(fsUtil.evaluateFilesSync.callCount).toEqual 3
-  
+
+
       it 'reads the data files from the specified location if one is provided', ->
         # Call method under test.
         mock.baseDirectory = 'mock/directory'
@@ -154,7 +150,8 @@ describe 'util/acceptance', ->
         expect(fsUtil.evaluateFilesSync.argsForCall[2][0])
           .toEqual mock.baseDirectory
         expect(fsUtil.evaluateFilesSync.callCount).toEqual 3
-    
+
+
       it 'does not read test files that don\'t end with the proper suffix', ->
         # Call method under test.
         acceptance.runStories()
@@ -169,65 +166,57 @@ describe 'util/acceptance', ->
         expect(fsUtil.evaluateFilesSync.argsForCall[2][1])
           .toEqual 'test.coffee'
         expect(fsUtil.evaluateFilesSync.callCount).toEqual 3
-  
+
+
     it 'runs test initialization prior to each scenario body', ->
       # Call method under test.
       acceptance.runStories()
   
       # Verify.
-      expect(mock.browser.chain.session.callCount).toEqual 2
-  
+      expect(mock.browser.init.callCount).toEqual 2
+
+
     it 'runs test finalization after each scenario body', ->
       # Call method under test.
       acceptance.runStories()
   
       # Verify.
       expect(mock.browser.end.callCount).toEqual 2
-      expect(mock.browser.setContext.callCount).toEqual 2
-      expect(mock.browser.testComplete.callCount).toEqual 2
-  
-    it 'correctly configures the soda client', ->
+
+
+    it 'correctly configures the client', ->
       # Call method under test.
       acceptance.runStories()
   
       # Verify.
-      expect(soda.createSauceClient.argsForCall[0][0]['name'])
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
         .toEqual 'Executing a search: Search for topic with many results'
-      expect(soda.createSauceClient.argsForCall[0][0]['url'])
-        .toEqual 'http://www.google.com/'
-      expect(soda.createSauceClient.argsForCall[0][0]['username'])
+      expect(driver.Client.argsForCall[0][0]['credentials'].username)
         .toEqual 'sauce_username'
-      expect(soda.createSauceClient.argsForCall[0][0]['access-key'])
+      expect(driver.Client.argsForCall[0][0]['credentials']['access-key'])
         .toEqual 'sauce_access_key'
-      expect(soda.createSauceClient.argsForCall[0][0]['max-duration'])
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities']['max-duration'])
         .toEqual '100'
-      expect(soda.createSauceClient.argsForCall[0][0]['os'])
-        .toEqual 'Windows 2003'
-      expect(soda.createSauceClient.argsForCall[0][0]['browser'])
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+        .toEqual 'VISTA'
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].browserName)
         .toEqual 'firefox'
-      expect(soda.createSauceClient.argsForCall[0][0]['browser-version'])
+      expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].version)
         .toEqual '7'
+      expect(driver.Client.argsForCall[0][0]['chain']).toBeTruthy()
 
-    it 'passes the configured soda client to the scenario and executes the scenario body', ->
+
+    it 'passes the configured client to the scenario and executes the scenario body', ->
       # Call method under test.
       acceptance.runStories()
   
       # Verify. 
-      # We are calling mock.browser.execute(steps.testStep()) in one of the sample stories
+      # We are calling mock.browser.step(steps.testStep()) in one of the sample stories
       # below, so if the method got called, the browser was passed correctly to the scenario
-      # and that the body was executed.
-      expect(mock.browser.execute).toHaveBeenCalled()
-  
-    it 'adds the given/when/then features to soda', ->
-      # Prepares mocks and spies.
-      spyOn(at_tools, 'addGivenWhenThenToSoda')
-  
-      # Call method under test.
-      acceptance.runStories()
-  
-      # Verify.
-      expect(at_tools.addGivenWhenThenToSoda).toHaveBeenCalled()
-  
+      # and the body was executed.
+      expect(mock.browser.step).toHaveBeenCalled()
+
+
     describe 'success reporting', ->
       beforeEach ->
         # Call method under test.
@@ -237,7 +226,8 @@ describe 'util/acceptance', ->
         # Verify.
         expect(util.log.argsForCall[1][0]).toContain("Done")
         expect(util.log.argsForCall[1][1]).toEqual(color.green)
-      
+
+
       it 'prints a green dot for every successful test that is executed', ->
         # Verify.
         expect(core.util.log.append.argsForCall[0][0]).toEqual('.')
@@ -245,12 +235,8 @@ describe 'util/acceptance', ->
         expect(core.util.log.append.argsForCall[1][0]).toEqual('.')
         expect(core.util.log.append.argsForCall[1][1]).toEqual(color.green)
         expect(core.util.log.append.callCount).toEqual 2
-        
-      it 'sets success on the sauce test', ->
-        # Verify.
-        successContext = 'sauce:job-info={"passed": true}'
-        expect(mock.browser.setContext.argsForCall[0][0]).toEqual(successContext)
-    
+
+
     describe 'failure reporting', ->
     
       beforeEach ->
@@ -259,12 +245,13 @@ describe 'util/acceptance', ->
           message: "Epic fail."
           storyTitle: "storyTitle"
           browserConfig:
-            browser: "browser"
-            'browser-version': "browser-version"
-            os: "os"
+            browserName: "browserName"
+            version: "version"
+            platform: "platform"
         mock.browser.end.andCallFake (callback) ->
           callback mock.error
-    
+
+
       it 'reports failure for each scenario that fails', ->  
         # Call method under test.
         acceptance.runStories()
@@ -273,15 +260,16 @@ describe 'util/acceptance', ->
         expect(util.log.argsForCall[2][0]).toEqual(mock.error.message)
         expect(util.log.argsForCall[2][1]).toEqual(color.red)
     
-        expect(util.log.argsForCall[3][0]).toContain mock.error.storyTitle
+        expect(util.log.argsForCall[4][0]).toContain mock.error.storyTitle
     
-        expect(util.log.argsForCall[4][0])
-          .toContain mock.error.browserConfig['browser']
-        expect(util.log.argsForCall[4][0])
-          .toContain mock.error.browserConfig['browser-version']
-        expect(util.log.argsForCall[4][0])
-          .toContain mock.error.browserConfig['os']
-    
+        expect(util.log.argsForCall[5][0])
+          .toContain mock.error.browserConfig['browserName']
+        expect(util.log.argsForCall[5][0])
+          .toContain mock.error.browserConfig['version']
+        expect(util.log.argsForCall[5][0])
+          .toContain mock.error.browserConfig['platform']
+
+
       it 'prints a red dot for every failed test that is executed', ->
         # Call method under test.
         acceptance.runStories()
@@ -292,7 +280,8 @@ describe 'util/acceptance', ->
         expect(core.util.log.append.argsForCall[1][0]).toEqual('.')
         expect(core.util.log.append.argsForCall[1][1]).toEqual(color.red)
         expect(core.util.log.append.callCount).toEqual 2
-      
+
+
       it 'throws an error on test failure if requested', ->
         # Prepare mocks and spies.
         spyOn(global, 'Error').andCallThrough()
@@ -306,18 +295,11 @@ describe 'util/acceptance', ->
           
         expect(global.Error).toHaveBeenCalled()
         expect(exceptionThrown).toBeTruthy()
-        
-      it 'sets failure on the sauce test', ->
-        # Call method under test.
-        acceptance.runStories()
-        
-        # Verify.
-        failureContext = 'sauce:job-info={"passed": false}'
-        expect(mock.browser.setContext.argsForCall[0][0]).toEqual(failureContext)
-  
+
+
   ###
-    These tests need to run against specially configured sample stories that have
-    various options for selecting, ignoring, etc. (see `mockDataLoading`).
+  These tests need to run against specially configured sample stories that have
+  various options for selecting, ignoring, etc. (see `mockDataLoading`).
   ###
   describe 'configuration options', ->
   
@@ -332,28 +314,29 @@ describe 'util/acceptance', ->
         # to be run, and only those scenarios.
         # Skipping or including is acheieved by decoration on
         # `story` and `scenario` method calls.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'selectedStory1Title: selectedStory1Scenario1'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[1][0]['name'])
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
           .toEqual 'selectedStory1Title: selectedStory1Scenario1'
-        expect(soda.createSauceClient.argsForCall[1][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
         
-        expect(soda.createSauceClient.argsForCall[2][0]['name'])
+        expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].name)
           .toEqual 'selectedStory2Title: selectedStory2Scenario1'
-        expect(soda.createSauceClient.argsForCall[2][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[3][0]['name'])
+        expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].name)
           .toEqual 'selectedStory2Title: selectedStory2Scenario1'
-        expect(soda.createSauceClient.argsForCall[3][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
           
-        expect(soda.createSauceClient.callCount).toEqual 4
-      
+        expect(driver.Client.callCount).toEqual 4
+
+
       it 'runs only the specified scenarios if requested', ->
         mockDataLoading selectedScenariosTestSet()
         
@@ -364,18 +347,19 @@ describe 'util/acceptance', ->
         # Because of the selected set of stories used, expect specific scenarios
         # to be run, and only those scenarios.
         # Some of the decoration on `story` and `scenario` method calls affects this.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'selectedScenarioStoryTitle: selectedScenario'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[1][0]['name'])
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
           .toEqual 'selectedScenarioStoryTitle: selectedScenario'
-        expect(soda.createSauceClient.argsForCall[1][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
           
-        expect(soda.createSauceClient.callCount).toEqual 2
-        
+        expect(driver.Client.callCount).toEqual 2
+
+
       it 'supports a mix of specified stories and scenarios', ->
         mockDataLoading selectedStoriesAndScenariosTestSet()
         
@@ -386,29 +370,29 @@ describe 'util/acceptance', ->
         # Because of the selected set of stories used, expect specific scenarios
         # to be run, and only those scenarios.
         # Some of the decoration on `story` and `scenario` method calls affects this.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'selectedStory1Title: selectedStory1Scenario1'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[1][0]['name'])
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
           .toEqual 'selectedStory1Title: selectedStory1Scenario1'
-        expect(soda.createSauceClient.argsForCall[1][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
         
-        expect(soda.createSauceClient.argsForCall[2][0]['name'])
+        expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].name)
           .toEqual 'selectedScenarioStoryTitle: selectedScenario'
-        expect(soda.createSauceClient.argsForCall[2][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[3][0]['name'])
+        expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].name)
           .toEqual 'selectedScenarioStoryTitle: selectedScenario'
-        expect(soda.createSauceClient.argsForCall[3][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
           
-        expect(soda.createSauceClient.callCount).toEqual 4
-        
-  
+        expect(driver.Client.callCount).toEqual 4
+
+
       it 'runs only the specified browser/os config if requested', ->
         mockDataLoading singleStoryTestSet()
         
@@ -417,13 +401,24 @@ describe 'util/acceptance', ->
         
         # Verify.
         # Expect only the specified browser to be used.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'Executing a search: Search for topic with many results'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
           
-        expect(soda.createSauceClient.callCount).toEqual 1
-  
+        expect(driver.Client.callCount).toEqual 1
+
+
+      it 'configures the client to add subtitles if requested', ->
+        mockDataLoading singleStoryTestSet()
+        
+        # Call method under test.
+        acceptance.runStories(subtitles:true)
+        
+        # Verify.
+        expect(driver.Client.argsForCall[0][0]['subtitles']).toBeTruthy()
+
+
       it 'ignores scenarios prefixed with "x"', ->
         mockDataLoading ignoredScenarioTestSet()
         
@@ -434,17 +429,18 @@ describe 'util/acceptance', ->
         # Because of the selected set of stories used, expect specific scenarios
         # to be run, and only those scenarios.
         # Some of the decoration on `story` and `scenario` method calls affects this.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'ignoredScenarioStoryTitle: notIgnoredScenario'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[1][0]['name'])
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
           .toEqual 'ignoredScenarioStoryTitle: notIgnoredScenario'
-        expect(soda.createSauceClient.argsForCall[1][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
           
-        expect(soda.createSauceClient.callCount).toEqual 2
+        expect(driver.Client.callCount).toEqual 2
+
 
       it 'ignores stories prefixed with "x"', ->
         mockDataLoading ignoredStoryTestSet()
@@ -456,18 +452,19 @@ describe 'util/acceptance', ->
         # Because of the selected set of stories used, expect specific scenarios
         # to be run, and only those scenarios.
         # Some of the decoration on `story` and `scenario` method calls affects this.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'Executing a search: Search for topic with many results'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
     
-        expect(soda.createSauceClient.argsForCall[1][0]['name'])
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
           .toEqual 'Executing a search: Search for topic with many results'
-        expect(soda.createSauceClient.argsForCall[1][0]['os'])
-          .toEqual 'Linux'    
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'    
 
-        expect(soda.createSauceClient.callCount).toEqual 2
-        
+        expect(driver.Client.callCount).toEqual 2
+
+
       it 'supports a mix of ignored stories and scenarios', ->
         mockDataLoading ignoredStoriesAndScenariosTestSet()
         
@@ -478,27 +475,27 @@ describe 'util/acceptance', ->
         # Because of the selected set of stories used, expect specific scenarios
         # to be run, and only those scenarios.
         # Some of the decoration on `story` and `scenario` method calls affects this.
-        expect(soda.createSauceClient.argsForCall[0][0]['name'])
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].name)
           .toEqual 'Executing a search: Search for topic with many results'
-        expect(soda.createSauceClient.argsForCall[0][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[0][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
     
-        expect(soda.createSauceClient.argsForCall[1][0]['name'])
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].name)
           .toEqual 'Executing a search: Search for topic with many results'
-        expect(soda.createSauceClient.argsForCall[1][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[1][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
           
-        expect(soda.createSauceClient.argsForCall[2][0]['name'])
+        expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].name)
           .toEqual 'ignoredScenarioStoryTitle: notIgnoredScenario'
-        expect(soda.createSauceClient.argsForCall[2][0]['os'])
-          .toEqual 'Windows 2003'
+        expect(driver.Client.argsForCall[2][0]['desiredCapabilities'].platform)
+          .toEqual 'VISTA'
   
-        expect(soda.createSauceClient.argsForCall[3][0]['name'])
+        expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].name)
           .toEqual 'ignoredScenarioStoryTitle: notIgnoredScenario'
-        expect(soda.createSauceClient.argsForCall[3][0]['os'])
-          .toEqual 'Linux'
+        expect(driver.Client.argsForCall[3][0]['desiredCapabilities'].platform)
+          .toEqual 'LINUX'
 
-        expect(soda.createSauceClient.callCount).toEqual 4
+        expect(driver.Client.callCount).toEqual 4
 
 ###
 Mocks the job of loading and executing data files from the file system.
@@ -590,7 +587,7 @@ sampleStories =
             .given 'Nothing', -> 
                return
              .when 'I visit the homepage', ->
-               browser.execute(steps.visitHomepage())
+               browser.step(steps.visitHomepage())
              .then 'I see the correct title', ->
                browser.assertTitle('Google')
           ###
@@ -618,11 +615,11 @@ sampleStories =
            ###
            browser
              .given 'I am on the homepage', -> 
-               #browser.execute(steps.visitHomepage())
+               #browser.step(steps.visitHomepage())
              .when 'I enter search terms', ->
-               #browser.type('q', 'nodejs')
+               #browser.typeInElement('q', 'nodejs', using:'name')
              .and 'submit the search', ->
-               #browser.clickAndWait('btnK')
+               #browser.clickElement('btnG', using:'name')
              .then 'I see the correct title', ->
                #browser.assertTitle('nodejs - Google Search')
              .and 'I see search results', ->
@@ -631,7 +628,7 @@ sampleStories =
            
            # Insert a test call so that tests can verify that the
            # scenario body was executed and the browser object was passed.
-           browser.execute(steps.testStep())
+           browser.step(steps.testStep())
     """
     
   selectedStory1:
@@ -718,7 +715,7 @@ sampleStories =
 sampleSteps = [
   stepDef1 =
     """
-    steps.visitHomepage = -> (browser) -> browser.open '/'
+    steps.visitHomepage = -> (browser) -> browser.get 'http://www.google.com'
     """
     
   stepDef2 =
@@ -729,22 +726,23 @@ sampleSteps = [
     
 sampleConfig =
   """
-  config.sauceLabs =
-    'url':          'http://www.google.com/'
-    'username':     'sauce_username'
-    'access-key':   'sauce_access_key'
-    'max-duration': "100"
+  config.credentials =
+    'username':             'sauce_username'
+    'access-key':           'sauce_access_key'
+  
+  config.settings =
+    'max-duration':         '100'
 
   config.browsers = [
     {
-      'os':               'Windows 2003'
-      'browser':          'firefox'
-      'browser-version':  '7'
+      'platform':     'VISTA'
+      'browserName':  'firefox'
+      'version':      '7'
     }
     {
-        'os':               'Linux'
-        'browser':          'firefox'
-        'browser-version':  '7'
+      'platform':     'LINUX'
+      'browserName':  'firefox'
+      'version':      '7'
     }
   ]
   """

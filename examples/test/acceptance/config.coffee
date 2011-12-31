@@ -1,18 +1,19 @@
-config.sauceLabs =
-  'url':                  'http://www.google.com/'
+config.credentials =
   'username':             'sauce_labs_username'
   'access-key':           'sauce_labs_access_key'
-  'max-duration':         "100"
+  
+config.settings =
+  'max-duration':         '180'
 
 config.browsers = [
   {
-    'os':               'Windows 2003'
-    'browser':          'firefox'
-    'browser-version':  '7'
+    'platform':     'VISTA'
+    'browserName':  'firefox'
+    'version':      '7'
   }
   {
-      'os':               'Linux'
-      'browser':          'firefox'
-      'browser-version':  '7'
+    'platform':     'LINUX'
+    'browserName':  'firefox'
+    'version':      '7'
   }
 ]
