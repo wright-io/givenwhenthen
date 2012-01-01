@@ -77,15 +77,21 @@ module.exports =
             
             # Set up the callback for the scenario (also kicks it off).
             browser.end (err) ->
-              if err?
-                err.storyTitle = title
-                err.browserConfig = browserConfig
-                errors.push err
+              browser.quit (quitErr) ->
+                err ?= quitErr
+                
+                browser.setSauceSuccess !err?, (sauceSuccessErr) ->
+                  err ?= sauceSuccessErr
+                  
+                  if err?
+                    err.storyTitle = title
+                    err.browserConfig = browserConfig
+                    errors.push err
               
-              log.append '.', if err? then color.red else color.green
+                  log.append '.', if err? then color.red else color.green
               
-              # Check for completion and, if complete, report success or errors.
-              onComplete()
+                  # Check for completion and, if complete, report success or errors.
+                  onComplete()
 
 
 ###

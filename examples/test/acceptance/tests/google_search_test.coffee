@@ -1,4 +1,4 @@
-story 'Executing a Google search',
+$story 'Executing a Google search',
   """
   As a human 
   I want to perform a search 
@@ -8,7 +8,7 @@ story 'Executing a Google search',
     scenario "Search for info about Node.js", (browser) ->
       browser
         .given "I am on the homepage", -> 
-          browser.step(steps.visitHomepage())
+          browser.step(steps.visitHomepage)
         .when "I enter search terms", ->
           browser.typeInElement('q', 'nodejs', using:'name')
         .and "submit the search", ->

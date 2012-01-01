@@ -20,6 +20,8 @@ describe 'acceptance', ->
       browser:
         init: ->
         end: (err) ->
+        quit: ->
+        setSauceSuccess: ->
         step: ->
           return mock.browser
     
@@ -32,6 +34,9 @@ describe 'acceptance', ->
     spyOn(mock.browser, 'init')
     spyOn(mock.browser, 'step').andReturn mock.browser
     spyOn(driver, 'Client').andReturn mock.browser
+    
+    spyOn(mock.browser, 'setSauceSuccess').andCallFake (success, callback) -> callback()
+    spyOn(mock.browser, 'quit').andCallFake (callback) -> callback()
     
     # This method is called when the async test finishes so we need to mock it to 
     # get our callback called.
@@ -182,6 +187,8 @@ describe 'acceptance', ->
   
       # Verify.
       expect(mock.browser.end.callCount).toEqual 2
+      expect(mock.browser.quit.callCount).toEqual 2
+      expect(mock.browser.setSauceSuccess.callCount).toEqual 2
 
 
     it 'correctly configures the client', ->
@@ -211,7 +218,7 @@ describe 'acceptance', ->
       acceptance.runStories()
   
       # Verify. 
-      # We are calling mock.browser.step(steps.testStep()) in one of the sample stories
+      # We are calling mock.browser.step(steps.testStep) in one of the sample stories
       # below, so if the method got called, the browser was passed correctly to the scenario
       # and the body was executed.
       expect(mock.browser.step).toHaveBeenCalled()
@@ -235,6 +242,11 @@ describe 'acceptance', ->
         expect(core.util.log.append.argsForCall[1][0]).toEqual('.')
         expect(core.util.log.append.argsForCall[1][1]).toEqual(color.green)
         expect(core.util.log.append.callCount).toEqual 2
+
+
+      it 'sets success on the sauce test', ->
+        # Verify.
+        expect(mock.browser.setSauceSuccess.argsForCall[0][0]).toEqual true
 
 
     describe 'failure reporting', ->
@@ -296,6 +308,12 @@ describe 'acceptance', ->
         expect(global.Error).toHaveBeenCalled()
         expect(exceptionThrown).toBeTruthy()
 
+      it 'sets failure on the sauce test', ->
+        # Call method under test.
+        acceptance.runStories()
+        
+        # Verify.
+        expect(mock.browser.setSauceSuccess.argsForCall[0][0]).toEqual false
 
   ###
   These tests need to run against specially configured sample stories that have
@@ -587,7 +605,7 @@ sampleStories =
             .given 'Nothing', -> 
                return
              .when 'I visit the homepage', ->
-               browser.step(steps.visitHomepage())
+               browser.step(steps.visitHomepage)
              .then 'I see the correct title', ->
                browser.assertTitle('Google')
           ###
@@ -615,7 +633,7 @@ sampleStories =
            ###
            browser
              .given 'I am on the homepage', -> 
-               #browser.step(steps.visitHomepage())
+               #browser.step(steps.visitHomepage)
              .when 'I enter search terms', ->
                #browser.typeInElement('q', 'nodejs', using:'name')
              .and 'submit the search', ->
@@ -628,7 +646,7 @@ sampleStories =
            
            # Insert a test call so that tests can verify that the
            # scenario body was executed and the browser object was passed.
-           browser.step(steps.testStep())
+           browser.step(steps.testStep)
     """
     
   selectedStory1:
@@ -715,12 +733,12 @@ sampleStories =
 sampleSteps = [
   stepDef1 =
     """
-    steps.visitHomepage = -> (browser) -> browser.get 'http://www.google.com'
+    steps.visitHomepage = (browser) -> browser.get 'http://www.google.com'
     """
     
   stepDef2 =
     """
-    steps.testStep = -> (browser) -> return browser
+    steps.testStep = (browser) -> return browser
     """
 ]
     

@@ -80,23 +80,7 @@ module.exports =
     end: (callback) ->
       self = @
     
-      @_done = (err) ->  
-        error = err
-    
-        #Send `quit` to Sauce test.
-        @quit (err) ->
-          error ?= err
-        
-          # Set pass/fail on the Sauce test.
-          sauceRestURL = 
-            "https://saucelabs.com/rest/v1/#{self.username}/jobs/#{self.sessionID}"
-          data = JSON.stringify(passed: !error?)
-        
-          self._callService sauceRestURL, 'put', data, (err, data, response) ->
-            error ?= err
-          
-            # Call the callback.
-            return callback.call self, error
+      @_done = (err) -> callback?.call self, err
       
       @queue.shift()()
 
@@ -153,7 +137,7 @@ module.exports =
         if err? && callback?
           callback err, data
         else if data != opts.inverse
-          if callback? then callback null, data
+          callback? null, data
         else
           modifierString = ''
           unless opts.inverse then modifierString = ' not'
@@ -190,7 +174,7 @@ module.exports =
         if err? && callback?
           callback err, data
         else if data != opts.inverse
-          if callback? then callback null, data
+          callback? null, data
         else
           modifierString = ''
           unless opts.inverse then modifierString = ' not'
@@ -220,7 +204,7 @@ module.exports =
         if err? && callback?
           callback err, data
         else if data is title
-          if callback? then callback null, true
+          callback? null, true
         else
           err = new Error "Expected title to be '#{title}' but found '#{data}'."
           if callback?
@@ -231,11 +215,26 @@ module.exports =
 
     ###
     RemoteWebDriver: Delete session.
+    Does not chain.
     @see: http://code.google.com/p/selenium/wiki/JsonWireProtocol#DELETE_/session/:sessionId.
     ###
-    quit: (callback) ->          
+    quit: (callback) -> 
       @_callService @_getSauceDriverUrl(), 'delete', null, (err, data, response) ->
-        if callback? then callback err
+        callback? err
+
+
+    ###
+    Set pass/fail on the Sauce test.
+    Does not chain.
+    @param callback: Callback.
+    ###
+    setSauceSuccess: (success, callback) ->
+      # Set pass/fail on the Sauce test.
+      sauceRestURL = "https://saucelabs.com/rest/v1/#{@username}/jobs/#{@sessionID}"
+      data = JSON.stringify(passed: success)
+    
+      @_callService sauceRestURL, 'put', data, (err, data, response) ->
+        callback? err
 
 
     _getSauceDriverUrl: (path) ->
@@ -262,10 +261,10 @@ module.exports =
     
       request.on 'error', (data, response) ->
         err = new Error "Response code: #{response.statusCode} - #{JSON.stringify data}"
-        if callback? then callback err, data, response
+        callback? err, data, response
       
       request.on 'success', (data, response) ->
-        if callback? then callback null, data, response
+        callback? null, data, response
 
 
     ###
@@ -279,11 +278,11 @@ module.exports =
     
       @_callService url, 'post', data, (err, data, response)->
         if err?
-          if callback? then callback err
+          callback? err
         else
           locationArr = response.headers.location.split "/"
           self.sessionID = locationArr[locationArr.length - 1]
-          if callback? then callback null
+          callback? null
 
 
     ###
@@ -296,7 +295,7 @@ module.exports =
       url = @_getSauceDriverUrl 'url'
       
       @_callService url, 'post', JSON.stringify(url: targetUrl), (err, data, response) ->
-        if callback? then callback err
+        callback? err
   
     ###
     RemoteWebDriver: Element.
@@ -327,7 +326,7 @@ module.exports =
         else 
           data = data.value.ELEMENT
       
-        if callback? then callback err, data
+        callback? err, data
 
 
     ###
@@ -345,17 +344,17 @@ module.exports =
     
       @_driver_element value, opts, (err, data) ->
         if err?
-          if callback? then callback err, data
+          callback? err, data
         else
           if data?
             url = self._getSauceDriverUrl "element/#{data}/click"
         
             self._callService url, 'post', null, (err, data, response) ->
-              if callback? then callback err
+              callback? err
           else
             # If data is null, the element wasn't found, so we can't click it.
             err = new Error "Element with #{opts.using}: #{value} not present."
-            if callback? then callback err
+            callback? err
 
 
     ###
@@ -375,7 +374,7 @@ module.exports =
     
       @_driver_element elementValue, opts, (err, data) ->
         if err?
-          if callback? then callback err, data
+          callback? err, data
         else
           if data?
             elementID = data
@@ -385,11 +384,11 @@ module.exports =
             url = self._getSauceDriverUrl "element/#{elementID}/value"
         
             self._callService url, 'post', data, (err, data, response) ->
-              if callback? then callback err
+              callback? err
           else
             # If data is null, the element wasn't found, so we can't type into it.
             err = new Error "Element with #{opts.using}: #{elementValue} not present."
-            if callback? then callback err
+            callback? err
 
 
     ###
@@ -405,7 +404,7 @@ module.exports =
       }
     
       @_callService url, 'post', data, (err, data, response) ->
-        if callback? then callback err, data.value
+        callback? err, data.value
 
 
     ###
@@ -429,7 +428,7 @@ module.exports =
         if err? && callback?
           callback err, data
         else
-          if callback? then callback null, data?
+          callback? null, data?
 
 
     ###
@@ -450,7 +449,7 @@ module.exports =
       data = JSON.stringify(ms: ms)
     
       @_callService url, 'post', data, (err, data, response) ->
-        if callback? then callback err, data.value
+        callback? err, data.value
 
 
     ###

@@ -21,7 +21,7 @@ is as simple as:
         scenario "Search for info about Node.js", (browser) ->
           browser
             .given "I am on the homepage", -> 
-              browser.step(steps.visitHomepage())
+              browser.step(steps.visitHomepage)
             .when "I enter search terms", ->
               browser.typeInElement('q', 'nodejs', using:'name')
             .and "submit the search", ->
@@ -75,7 +75,7 @@ and one or more scenarios:
     scenario "Search for info about Node.js", (browser) ->
       browser
         .given "I am on the homepage", -> 
-          browser.step(steps.visitHomepage())
+          browser.step(steps.visitHomepage)
         .when "I enter search terms", ->
           browser.typeInElement('q', 'nodejs', using:'name')
         .and "submit the search", ->
@@ -111,13 +111,13 @@ This kind of functionality can be defined in steps and referred to in scenarios 
     scenario "Search for info about Node.js", (browser) ->
       browser
         .given "I am on the homepage", -> 
-          browser.step(steps.visitHomepage())
+          browser.step(steps.visitHomepage)
 
 Steps are defined in `*_steps.coffee` files. Multiple steps per file can be defined 
 as follows:  
 
     :coffee
-    steps.visitHomepage = -> (browser) -> browser.get 'http://www.google.com'
+    steps.visitHomepage = (browser) -> browser.get 'http://www.google.com'
 
 Multiple steps files can be defined to organize your steps sensibly.
 

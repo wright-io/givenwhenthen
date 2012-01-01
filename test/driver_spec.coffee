@@ -10,6 +10,9 @@ describe 'driver', ->
   describe 'driver.Client', ->
     mock =
       sessionID: '12345'
+      callback: (err, data) ->
+      request:
+        on: ->
       
     opts =
       credentials:
@@ -25,9 +28,26 @@ describe 'driver', ->
       
     browser = null
     
+    ###
+    Mock the restler "on 'x'" event to get the desired return behavior.
+    @param eventName: The event to mock (e.g. 'success').
+    @param data:      The mock data to return on `eventName`.
+    @param response:  The mock response to return on `eventName`.
+    ###
+    spyOnRestlerEvent = (eventName, data, response) ->
+      mock.request.on.andCallFake (event, callback) ->
+        if event is eventName
+          callback data, response
+    
     beforeEach ->
       # Prepare mocks and spies.
       browser = new Client(opts)
+      spyOn(mock, 'callback')
+      
+      # Spy on the restler "on 'x'" event to make sure no real web service calls are made
+      # in testing.
+      # Might be overridden below by calls to `spyOnRestlerEvent`.
+      spyOn(mock.request, 'on')      
       
       
     it 'can be configured via the constructor', ->
@@ -40,22 +60,6 @@ describe 'driver', ->
       
       
     describe 'Driver commands', ->
-      mock.request =
-        on: ->
-          
-      mock.callback = (err, data) ->
-                
-      ###
-      Mock the restler "on 'x'" event to get the desired return behavior.
-      @param eventName: The event to mock (e.g. 'success').
-      @param data:      The mock data to return on `eventName`.
-      @param response:  The mock response to return on `eventName`.
-      ###
-      spyOnRestlerEvent = (eventName, data, response) ->
-        mock.request.on.andCallFake (event, callback) ->
-          if event is eventName
-            callback data, response
-            
       baseSauceDriverUrl = 'http://ondemand.saucelabs.com/wd/hub/session'
       sauceDriverUrl = baseSauceDriverUrl + '/' + mock.sessionID
       
@@ -64,12 +68,7 @@ describe 'driver', ->
           .toEqual opts.credentials.username
         expect(rest.request.argsForCall[0][1]['password'])
           .toEqual opts.credentials['access-key']
-      
-      beforeEach ->
-        # Spy on the restler "on 'x'" event to make sure no real web service calls are made
-        # in testing.
-        # Might be overridden below by calls to `spyOnRestlerEvent`.
-        spyOn(mock.request, 'on')
+    
     
       describe 'Selenium driver commands', ->
         
@@ -78,8 +77,7 @@ describe 'driver', ->
         
         beforeEach ->
           # Prepare mocks and spies.
-          spyOn(rest, 'request').andReturn mock.request          
-          spyOn(mock, 'callback')
+          spyOn(rest, 'request').andReturn mock.request
               
           browser.sessionID = mock.sessionID
           
@@ -114,6 +112,41 @@ describe 'driver', ->
           expect(browser.sessionID).toEqual mock.sessionID
           
           expect(mock.callback).toHaveBeenCalled()
+        
+        
+        it 'quits a running session', ->          
+          spyOnRestlerEvent 'success', null, null
+          
+          # Call method under test.
+          browser.quit mock.callback
+          
+          # Verify.
+          verifyCredentials()
+          
+          expect(rest.request.argsForCall[0][0]).toEqual sauceDriverUrl
+          expect(rest.request.argsForCall[0][1]['method']).toEqual 'delete'
+          expect(rest.request.argsForCall[0][1]['data']).toEqual null
+        
+          expect(mock.callback).toHaveBeenCalled()
+        
+        
+        it 'sets pass/fail on the Sauce test', ->          
+          spyOnRestlerEvent 'success', null, null
+          
+          # Call method under test.
+          browser.setSauceSuccess true, mock.callback
+          
+          # Verify.
+          verifyCredentials()
+          
+          sauceRestURL = "https://saucelabs.com/rest/v1/#{opts.credentials.username}/" +
+            "jobs/#{mock.sessionID}"
+          expect(rest.request.argsForCall[0][0]).toEqual sauceRestURL
+          expect(rest.request.argsForCall[0][1]['method']).toEqual 'put'
+          expect(rest.request.argsForCall[0][1]['data']).toEqual JSON.stringify(passed: true)
+                  
+          expect(mock.callback).toHaveBeenCalled()
+        
         
         it 'navigates to the specified URL', ->
           targetUrl = 'http://some.site.com'
@@ -606,74 +639,160 @@ describe 'driver', ->
                 expect(exceptionThrown).toBeTruthy()
       
       
+      it 'calls provided functions as steps to allow step reuse', ->
+        # Prepare mocks and spies.
+        spyOn(browser, 'get')
+        fn = (browser) -> browser.get 'http://www.google.com'
+        
+        # Call method under test.
+        browser.step fn
+        
+        # Verify.
+        expect(browser.get).toHaveBeenCalledWith 'http://www.google.com'
+      
+      
       describe 'given, when, then commands, which allow BDD grouping of steps', ->
         
+          beforeEach ->
+            # Prepare mocks and spies.
+            spyOn(browser, 'get')
+            
+        
           it 'executes a group of steps for a "given", clause', ->
+            # Call method under test.
+            browser.given "test", (browser) ->
+              browser.get 'http://www.google.com'
+        
+            # Verify.
+            expect(browser.get).toHaveBeenCalledWith 'http://www.google.com'
             
             
           it 'executes a group of steps for a "when", clause', ->
+            # Call method under test.
+            browser.when "test", (browser) ->
+              browser.get 'http://www.google.com'
+        
+            # Verify.
+            expect(browser.get).toHaveBeenCalledWith 'http://www.google.com'
             
             
           it 'executes a group of steps for a "then", clause', ->
+            # Call method under test.
+            browser.then "test", (browser) ->
+              browser.get 'http://www.google.com'
+        
+            # Verify.
+            expect(browser.get).toHaveBeenCalledWith 'http://www.google.com'
             
             
           it 'executes a group of steps for an "and", clause', ->
+            # Call method under test.
+            browser.and "test", (browser) ->
+              browser.get 'http://www.google.com'
         
-        
-      it 'calls provided functions as steps to allow step reuse', ->
+            # Verify.
+            expect(browser.get).toHaveBeenCalledWith 'http://www.google.com'
       
       
     describe 'subtitles', ->
       
-      
       it 'inserts subtitles into the test pages for each BDD step, if specified', ->
-      
-      
-      describe 'internal functionality', ->
-        # TODO: Actually might be able to get that into the above by checking the js returned.
+        # Prepare mocks and spies.
+        spyOn(browser, 'execute')
         
-        it 'creates a div containing the specified text', ->
-          
-        it 'creates javascript that adds a subtitle div to a page it is executed against', ->
-          # TODO: try mocking document and actually executing the javascript
-          # (call `subtitle()`)
-          # Can assume other internal parts work if the right elements are present
-          # in the returned script.
-          # Check for div containing div containing text (not styling).
-          # Check that it is appended to document.
+        browser.subtitles = true
+        
+        # Call method under test.
+        browser.given 'test', -> return browser
+        
+        # Verify.
+        # NOTE: This is a pretty rough test for the subtitle js generation, but
+        # at least it's in the ballpark.
+        expect(browser.execute).toHaveBeenCalled()
+        expect(browser.execute.argsForCall[0][0])
+          .toContain 'var el = document.createElement("div");'
+        expect(browser.execute.argsForCall[0][0])
+          .toMatch(new RegExp('el.innerHTML = "<div .*>GIVEN: test</div>'))
+        expect(browser.execute.argsForCall[0][0]).toContain 'document.body.appendChild(el)'
       
       
     describe 'chained mode', ->
       
-      it 'allows queues all supported driver calls and allows them to be chained', ->
-        # NOTE: probably covered below.
-        # TODO: create array of method names and dynamically check that they
-        # queue with the passed args
-        
-        
+      beforeEach ->
+        # Prepare mocks and spies.
+        spyOnRestlerEvent 'success', null, null
+        browser.chain = true
+      
+      
       it 'queues driver commands and executes them serially when `end()` is called', ->
+        # Prepare mocks and spies.
+        testCalls = []
+        spyOn(browser, '_driver_init').andCallFake (callback) ->
+          testCalls.push 'init'
+          callback null
+        spyOn(browser, '_driver_get').andCallFake (callback) ->
+          testCalls.push 'get'
+          callback null
+        spyOn(browser, '_driver_execute').andCallFake (callback) ->
+          testCalls.push 'execute'
+          callback null
         
+        # Call method under test.
+        browser
+          .init()
+          .get()
+          .execute()
+          
+        # Verify.
+        
+        # Haven't called end yet - nothing should be executed.
+        expect(browser._driver_init).not.toHaveBeenCalled()
+        expect(browser._driver_get).not.toHaveBeenCalled()
+        expect(browser._driver_execute).not.toHaveBeenCalled()
+        
+        browser.end()
+        
+        expect(browser._driver_init).toHaveBeenCalled()
+        expect(browser._driver_get).toHaveBeenCalled()
+        expect(browser._driver_execute).toHaveBeenCalled()
+        
+        expect(testCalls).toEqual ['init', 'get', 'execute']
         
       it 'supports callbacks for the queued commands', ->
+        # Prepare mocks and spies.
+        spyOn(browser, '_driver_init').andCallFake (callback) ->
+          callback null
+          
+        # Call method under test.
+        browser.init mock.callback
+        browser.end()
+        
+        # Verify.
+        expect(mock.callback).toHaveBeenCalled()
         
         
       it 'calls the callback to `end()` when the chain completes', ->
+        # Prepare mocks and spies.
+        spyOn(browser, '_driver_init').andCallFake (callback) ->
+          callback null
+          
+        # Call method under test.
+        browser.init()
+        browser.end mock.callback
+        
+        # Verify.
+        expect(mock.callback).toHaveBeenCalled()
         
         
       it 'calls the callback to `end()` if there is an error in the chain', ->
-        
-        
-      it 'closes the Sauce session on completion', ->
-        
-        
-      describe 'setting pass/fail on Sauce test', ->
-        
-        # TODO: Consider externalizing this from `end()` so it can be used in non-chained
-        # mode. If so, add a test in the Selenium commands block.
-        
-        it 'it sets pass on completion of a successful test', ->
+        mock.error = new Error('Epic fail.')
+        spyOn(browser, '_driver_init').andCallFake (callback) ->
+          callback mock.error 
           
-          
-        it 'it sets fail on completion of an unsuccessful test', ->
+        # Call method under test.
+        browser.init()
+        browser.end mock.callback
+        
+        # Verify.
+        expect(mock.callback).toHaveBeenCalledWith mock.error
 
-  
