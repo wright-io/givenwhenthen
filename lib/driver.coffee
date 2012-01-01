@@ -132,7 +132,7 @@ module.exports =
       opts.using    ?= 'id'
       opts.inverse  ?= false
     
-      #TODO: All of this chain error handling stinks. Gotta be a cleaner way. Phil?
+      #TODO: All of this chain error handling stinks. Gotta be a cleaner way.
       @elementPresent value, opts, (err, data) ->
         if err? && callback?
           callback err, data
@@ -166,10 +166,10 @@ module.exports =
     @option inverse:  Whether to inverse the result (assert text is not present).
     ###
     assertTextPresent: (text, opts=[], callback) ->
-      # TODO: Again, need a way to not need to pass opts. Talk with Phil.
+      # TODO: Again, need a way to not need to pass opts.
       opts.inverse  ?= false
     
-      #TODO: All of this chain error handling stinks. Gotta be a cleaner way. Phil?
+      #TODO: All of this chain error handling stinks. Gotta be a cleaner way.
       @textPresent text, (err, data) ->
         if err? && callback?
           callback err, data
@@ -316,7 +316,7 @@ module.exports =
       }
       
       @_callService url, 'post', data, (err, data, response) ->
-        # TODO: Check with Phil about general error handling. 
+        # TODO: Check general error handling. 
         # Am I doing it right, or should we be doing more throwing and catching instead
         # of passing.
         
@@ -367,7 +367,6 @@ module.exports =
     @option using:        Locator strategy to use. Defaults to 'id'.
     ###
     # TODO: Problem: can't leave out opts in caller without screwing up callback.
-    # Does Phil have any ideas?
     _driver_typeInElement: (elementValue, text, opts=[], callback) ->
       self = @
       opts.using ?= 'id'
