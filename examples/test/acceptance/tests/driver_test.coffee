@@ -7,7 +7,7 @@ story 'WD test',
 
     scenario "Example of every method", (browser) ->
       browser
-        .given "I have written the Given, When, Then", ->
+        .given "I have written Given, When, Then", ->
           return browser
         .when "I execute every test method supported", ->
           title = null
