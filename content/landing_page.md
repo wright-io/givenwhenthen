@@ -164,7 +164,7 @@ See Sauce Labs for the list of available browser/OS configurations.
 - Phil Cockfield [philcockfield](https://github.com/philcockfield)
 
 ## Design Sources
-In addition to being built on top op [Sauce Labs](http://saucelabs.com/) 
+In addition to being built on top of [Sauce Labs](http://saucelabs.com/) 
 and Selenium 2, `Given When Then` is heavily influenced by [Cucumber](http://cukes.info/) 
 and the [BDD movement](http://en.wikipedia.org/wiki/Behavior_Driven_Development) in general 
 - and in turn all of the efforts that BDD and Cucumber are indebted to. 
