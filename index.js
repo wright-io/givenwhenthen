@@ -1,2 +1,3 @@
 require('coffee-script');
-module.exports = require('./lib/acceptance.coffee');
+module.exports.runner = require('./lib/acceptance');
+module.exports.driver = require('./lib/driver');

@@ -1,6 +1,6 @@
 {
   "name": "givenwhenthen",
-  "version": "0.0.9",
+  "version": "0.1.0",
 
 	"description": "BDD semantics for Selenium and Sauce Labs in Node.js",
 	"homepage": "http://mulabs.io/givenwhenthen/",
@@ -21,9 +21,9 @@
 
   "dependencies": {
 		"open.core": ">= 0.1.177",
-		"soda": ">= 0.2.5",
 		"coffee-script": ">= 1.1.1",
-		"jasmine-node": ">= 1.0.6"
+		"jasmine-node": ">= 1.0.6",
+		"restler": ">= 0.2.3"
   },
 
 	"keywords": [

@@ -1,7 +1,6 @@
-soda      = require 'soda'
 core      = require 'open.core'
 fsUtil    = require './fs.coffee'
-at_tools  = require './acceptance_tools'
+driver    = require './driver'
 
 BASE_DIR        = 'test/acceptance'
 stories         = []
@@ -9,7 +8,7 @@ selectedStories = []
 global.config   = browsers: []
 
 ###
-Module: Given/When/Then acceptance test semantics wrapper around soda testing framework.
+Module: Given/When/Then acceptance test semantics wrapper around Sauce Labs Selenium testing.
 ###
 module.exports =
   ###
@@ -19,14 +18,15 @@ module.exports =
   @option directory:  If provided, will be used as base directory for loading data files.
   @option browser:    Number (1-based) of the browser from config.browsers to use.
                       If provided, only selected browser will be used.
+  @option subtitles:  If true, subtitles for steps will be added to test video.
   ###
   runStories: (options = {}) ->
     # Setup initial conditions.
     if options.directory? then BASE_DIR = options.directory
-    at_tools.addGivenWhenThenToSoda()
     loadStepsSync()
     loadConfigSync(options.browser)
-    serverConfig = config.sauceLabs
+    credentials = config.credentials
+    settings = config.settings
     getStoriesSync()
     count = 0
     errors = []
@@ -44,9 +44,10 @@ module.exports =
           log '\nCompleted with errors.\n', color.red
           for err in errors
             log err.message, color.red
+            log()
             log " - Story: #{err.storyTitle}"
-            log " - Browser: #{err.browserConfig['browser']} | " +
-              "#{err.browserConfig['browser-version']} | #{err.browserConfig['os']}"
+            log " - Browser: #{err.browserConfig['browserName']} | " +
+              "#{err.browserConfig['version']} | #{err.browserConfig['platform']}"
             log()
              
           if options.throw?
@@ -58,7 +59,7 @@ module.exports =
     log "Running #{stories.length} stories containing #{numberOfScenarios} scenarios " +
       "against #{config.browsers.length} browser/os configurations...",
       color.blue
-    
+
     # Enumerate each story, executing the scenarios against each configuration.
     for story in stories
       for scenario in story.scenarios  
@@ -66,27 +67,32 @@ module.exports =
           
           # Invoke the scenario.
           title = "#{story.title}: #{scenario.title}"
-          browser = createBrowser title, serverConfig, browserConfig
+          browser = createWebDriver title, 
+            credentials, settings, browserConfig, options.subtitles
           
           do (title, browser, browserConfig) ->
+            
             # Invoke the scenario with the prepared browser client.
-            # (`session()` returns the client).
-            # Then execute finalization against the client returned from `scenario`.
-            scenario(browser.chain.session())
-              .end (err) ->
-                context = "sauce:job-info={\"passed\": #{!err?}}"
-
-                browser.setContext context, ->
-                  browser.testComplete ->
-                    if err?
-                      err.storyTitle = title
-                      err.browserConfig = browserConfig
-                      errors.push err
-                      
-                    log.append '.', if err? then color.red else color.green
+            scenario(browser)
+            
+            # Set up the callback for the scenario (also kicks it off).
+            browser.end (err) ->
+              browser.quit (quitErr) ->
+                err ?= quitErr
                 
-                    # Check for completion and, if complete, report success or errors.
-                    onComplete()
+                browser.setSauceSuccess !err?, (sauceSuccessErr) ->
+                  err ?= sauceSuccessErr
+                  
+                  if err?
+                    err.storyTitle = title
+                    err.browserConfig = browserConfig
+                    errors.push err
+              
+                  log.append '.', if err? then color.red else color.green
+              
+                  # Check for completion and, if complete, report success or errors.
+                  onComplete()
+
 
 ###
 Global DSL: Represents a user-story - containing one or more scenarios.
@@ -100,7 +106,7 @@ global.story = (title, description, fn) ->
   #   us to execute the story-function multiple times with different
   #   browser/OS configurations.
   deferStory this, title, description, fn
-  
+
 
 ###
 Convenience function to indicate an explicitly selected story.
@@ -112,15 +118,18 @@ If any stories are explicitly selected, only those stories will be run.
 global.$story = (title, description, fn) ->
   deferStory this, title, description, fn, selected:true
 
+
 ###
 Convenience function to indicate a disabled story (no-op).
 ###
 global.xstory = ->
-  
+
+
 ###
 Convenience function to indicate a disabled scenario (no-op).
 ###
 global.xscenario = ->
+
 
 # PRIVATE --------------------------------------------------------------------------
 
@@ -141,7 +150,7 @@ deferStory = (self, storyTitle, description, fnStory, options={}) ->
 
   ###
   Represents a scenario.
-  Will be passed a configured Soda client and executed.
+  Will be passed a configured client and executed.
   @param scenarioTitle: The title of the scenario.
   @param fnScenario:    The function containing the executable scenario.
   ###
@@ -174,6 +183,7 @@ deferStory = (self, storyTitle, description, fnStory, options={}) ->
 
   if options.selected? then selectedStories.push story else stories.push story
 
+
 ###
 Returns a scenario object with metadata and a function which can be executed later.
 @param self:           The context to execute the function containing the scenario.
@@ -191,19 +201,26 @@ deferScenario = (self, scenarioTitle, storyTitle, fnScenario) ->
 
 
 ###
-Returns a soda client (browser) that is used to run a scenario.
-@param title:         Title for the test. Will be used in Sauce test collection.
-@param serverConfig:  Sauce server configuration for the test.
-@param browserConfig: Sauce browser/os configuration for the test.
-###
-createBrowser = (title, serverConfig, browserConfig) -> 
-  # Create the client.
-  args = _(serverConfig).extend browserConfig
-  args.name = title
+Returns a Client (Selenium 2 RemoteWebDriver) that is used to run a scenario.
+@param title:         Title for the test.
+@param credentials:   Sauce credentials.
+@param settings:      Sauce settings.
+@param browserConfig: Sauce browser/os configuration.
+@param subtitiles:    Whether to display subtitles for steps.
+###  
+createWebDriver = (title, credentials, settings, browserConfig, subtitles) ->
+  settings.name = title
   
-  browser = soda.createSauceClient clone(args)
- 
+  opts = 
+    credentials:          credentials
+    desiredCapabilities:  _(settings).extend browserConfig
+    chain:                true
+    subtitles:            subtitles
+    
+  browser = new driver.Client clone(opts)
+  browser.init()
   return browser
+
 
 ###
 TODO: Fix this in jasmine?
@@ -221,6 +238,7 @@ clone = (obj) ->
 
   return newInstance
 
+
 ###
 Evaluates each story file and returns the set of test functions.  
 ###
@@ -233,6 +251,7 @@ getStoriesSync = ->
   fsUtil.evaluateFilesSync BASE_DIR, 'test.coffee'
 
   filterForSelectedStories()
+
 
 ###
 Loads the set of step files.
@@ -252,12 +271,14 @@ loadConfigSync = (browser=null)->
   
   if browser? then config.browsers = [config.browsers[browser - 1]]
 
+
 ###
 Check for explicitly selected stories.
 If any are found, only those stories will be executed.
 ### 
 filterForSelectedStories = ->
   if selectedStories.length > 0 then stories = selectedStories
+
 
 ###
 Wrapper for core.util.log
@@ -266,6 +287,7 @@ Wrapper for core.util.log
 ###
 log = (message, color) ->
   core.util.log message, color
+
 
 ###
 Wrapper for core.util.log
