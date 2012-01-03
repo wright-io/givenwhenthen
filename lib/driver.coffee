@@ -128,7 +128,7 @@ module.exports =
     @option using:    Locator strategy to use. Defaults to 'id'.
     @option inverse:  Whether to inverse the result (assert element is not present).
     ###
-    assertElementPresent: (value, opts=[], callback) ->
+    assertElementPresent: (value, opts={}, callback) ->
       opts.using    ?= 'id'
       opts.inverse  ?= false
     
@@ -154,7 +154,7 @@ module.exports =
     @param callback:  Callback.
     @option using:    Locator strategy to use. Defaults to 'id'.
     ###
-    assertElementNotPresent: (value, opts=[], callback) ->
+    assertElementNotPresent: (value, opts={}, callback) ->
       opts.inverse = true
       @assertElementPresent value, opts, callback
 
@@ -165,7 +165,7 @@ module.exports =
     @param callback:  Callback.
     @option inverse:  Whether to inverse the result (assert text is not present).
     ###
-    assertTextPresent: (text, opts=[], callback) ->
+    assertTextPresent: (text, opts={}, callback) ->
       # TODO: Again, need a way to not need to pass opts.
       opts.inverse  ?= false
     
@@ -306,7 +306,7 @@ module.exports =
     @options using:   Locator strategy to use. Defaults to 'id'.
     @returns: Selenium WebElement ID or null if element not found.
     ###    
-    _driver_element: (value, opts=[], callback) ->
+    _driver_element: (value, opts={}, callback) ->
       opts.using ?= 'id'
       url = @_getSauceDriverUrl 'element'
     
@@ -338,7 +338,7 @@ module.exports =
     @option using:    Locator strategy to use. Defaults to 'id'.
     @returns: Selenium WebElement ID or null if element not found.
     ### 
-    _driver_clickElement: (value, opts=[], callback) ->
+    _driver_clickElement: (value, opts={}, callback) ->
       self = @
       opts.using ?= 'id'
     
@@ -367,7 +367,7 @@ module.exports =
     @option using:        Locator strategy to use. Defaults to 'id'.
     ###
     # TODO: Problem: can't leave out opts in caller without screwing up callback.
-    _driver_typeInElement: (elementValue, text, opts=[], callback) ->
+    _driver_typeInElement: (elementValue, text, opts={}, callback) ->
       self = @
       opts.using ?= 'id'
     
@@ -420,7 +420,7 @@ module.exports =
     @param callback:  Callback.
     @option using:    Locator strategy to use. Defaults to 'id'.
     ###
-    _driver_elementPresent: (value, opts=[], callback) ->
+    _driver_elementPresent: (value, opts={}, callback) ->
       opts.using ?= 'id'
     
       @_driver_element value, opts, (err, data) ->
