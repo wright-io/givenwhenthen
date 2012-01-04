@@ -93,9 +93,8 @@ Each scenario has "**given**", "**when**", and "**then**" steps.
 - **When**: Take the action the scenario is testing.
 - **Then**: Assert the conditions expected after taking the tested action.
 
-Each step contains one or more chained calls to 
-[Selenium actions](http://release.seleniumhq.org/selenium-core/1.0.1/reference.html) 
-in the form of `browser.someSeleneseCommand`.
+Each step contains one or more chained calls to WebDriver commands in the form of 
+`browser.someCommand` - (see `/examples`).
 
 Each step (`given`, `when`, `then`) can have an arbitrary number of `and` steps following it
 (see above example).
@@ -158,6 +157,11 @@ See Sauce Labs for the list of available browser/OS configurations.
   - e.g. `xstory` or `xscenario`
 - To select only one or a set of stories or scenarios, prefix the story or scenario with `$`
   - e.g. `$story` or `$scenario`
+
+## Subtitles In Test Videos
+When the subtitle flag to the GivenWhenThen runner, subtitle divs will be inserted into the 
+test browser which will show up in the Sauce Labs test videos and illustrate which 
+of the BDD steps is currently being executed (see `/examples/Cakefile`).
 
 ## Authors
 - Doug Wright [wright-io](https://github.com/wright-io)
