@@ -43,8 +43,8 @@ is as simple as:
 
 Take it for a test drive by looking at the `/examples` folder:  
 
-1. Get a [Sauce Labs](http://saucelabs.com/) account.  Trial account is free.
-2. Set the your sauce account details in `/examples/test/acceptance/config.coffee`.
+1. Get a [Sauce Labs](http://saucelabs.com/) account. Trial account is free.
+2. Set your sauce account details in `/examples/test/acceptance/config.coffee`.
 3. From within the `/examples` folder, run `cake test:acceptance`.
 
 To use in your own project:
@@ -104,7 +104,7 @@ Often there are steps that are repeated throughout many scenarios,
 for example "visit homepage" or "sign in".
 
 This kind of functionality can be defined in steps and referred to in scenarios via 
-`browser.execute()`:
+`browser.step()`:
 
     :coffee
     scenario "Search for info about Node.js", (browser) ->
