@@ -164,8 +164,8 @@ test browser which will show up in the Sauce Labs test videos and illustrate whi
 of the BDD steps is currently being executed (see `/examples/Cakefile`).
 
 ## Authors
-- Doug Wright [GitHub: wright-io](https://github.com/wright-io) | [Twitter: @dougwright](https://twitter.com/#!/dougwright)
-- Phil Cockfield [GitHub: philcockfield](https://github.com/philcockfield) | [Twitter: @philcockfield](https://twitter.com/#!/philcockfield)
+- **Doug** Wright [GitHub: wright-io](https://github.com/wright-io) | [Twitter: @dougwright](https://twitter.com/#!/dougwright)
+- **Phil** Cockfield [GitHub: philcockfield](https://github.com/philcockfield) | [Twitter: @philcockfield](https://twitter.com/#!/philcockfield)
 
 ## Design Sources
 In addition to being built on top of [Sauce Labs](http://saucelabs.com/) 
