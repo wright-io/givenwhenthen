@@ -9,8 +9,8 @@ See the [Given When Then](http://mulabs.io/givenwhenthen) site for usage instruc
     npm install givenwhenthen
 
 ## Authors
-* Doug Wright [wright-io](https://github.com/wright-io)
-* Phil Cockfield [philcockfield](https://github.com/philcockfield)
+* Doug Wright [GitHub: wright-io](https://github.com/wright-io) | [Twitter: @dougwright](https://twitter.com/#!/dougwright)
+* Phil Cockfield [GitHub: philcockfield](https://github.com/philcockfield) | [Twitter: @philcockfield](https://twitter.com/#!/philcockfield)
 
 
 ## License
