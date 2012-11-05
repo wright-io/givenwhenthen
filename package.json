@@ -10,7 +10,12 @@
 	},
 
   "contributors": [ 
-      { "name": "Phil Cockfield" }
+      { "name": "Phil Cockfield" },
+      {
+        "name": "Robert Quinlivan",
+        "email": "rquinlivan@gmail.com",
+        "web": "http://www.rquinlivan.com"
+      }
   ],
   
   "main": "./index.js",
@@ -21,9 +26,13 @@
 
   "dependencies": {
 		"open.core": ">= 0.1.177",
-		"coffee-script": ">= 1.1.1",
+		"coffee-script": "1.1.1",
 		"jasmine-node": ">= 1.0.6",
 		"restler": ">= 0.2.3"
+  },
+
+  "scripts": {
+    "test": "./node_modules/jasmine-node/bin/jasmine-node --coffee ./test/*"
   },
 
 	"keywords": [
