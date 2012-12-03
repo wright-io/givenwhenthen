@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/wright-io/givenwhenthen.png)](http://travis-ci.org/wright-io/givenwhenthen)
 # Given When Then
 Simple web app acceptance testing with [BDD](http://dannorth.net/introducing-bdd/)
 semantics using Selenium and [Sauce Labs](http://saucelabs.com/).
