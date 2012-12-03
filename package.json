@@ -25,8 +25,8 @@
 	},
 
   "dependencies": {
-		"open.core": "0.1.208",
-		"coffee-script": "1.1.1",
+		"open.core": "0.1.209",
+		"coffee-script": "1.4.0",
 		"jasmine-node": ">= 1.0.6",
 		"restler": ">= 0.2.3"
   },
