@@ -25,7 +25,7 @@ module.exports =
           js = CoffeeScript.compile(data)
         catch error
           throw "Failed to compile coffee-script in acceptance test file: " +
-            "\n[#{p}].\n#{error}\n"
+            "\n[#{path}].\n#{error}\n"
 
         # Execute the javascript.
         global.eval js

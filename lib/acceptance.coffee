@@ -5,7 +5,8 @@ driver    = require './driver'
 BASE_DIR        = 'test/acceptance'
 stories         = []
 selectedStories = []
-global.config   = browsers: []
+global.config   = {browsers: []}
+
 
 ###
 Module: Given/When/Then acceptance test semantics wrapper around Sauce Labs Selenium testing.
@@ -61,6 +62,7 @@ module.exports =
       color.blue
 
     # Enumerate each story, executing the scenarios against each configuration.
+
     for story in stories
       for scenario in story.scenarios  
         for browserConfig in config.browsers
@@ -71,13 +73,13 @@ module.exports =
             credentials, settings, browserConfig, options.subtitles
           
           do (title, browser, browserConfig) ->
-            
             # Invoke the scenario with the prepared browser client.
             scenario(browser)
             
             # Set up the callback for the scenario (also kicks it off).
             browser.end (err) ->
               browser.quit (quitErr) ->
+
                 err ?= quitErr
                 
                 browser.setSauceSuccess !err?, (sauceSuccessErr) ->
@@ -89,7 +91,6 @@ module.exports =
                     errors.push err
               
                   log.append '.', if err? then color.red else color.green
-              
                   # Check for completion and, if complete, report success or errors.
                   onComplete()
 
@@ -257,8 +258,8 @@ getStoriesSync = ->
 Loads the set of step files.
 ###
 loadStepsSync = -> 
+  global.steps = {}
   # Each step file adds one or more a functions as properties to this object.
-  steps ?= {}
   fsUtil.evaluateFilesSync BASE_DIR, 'steps.coffee'
 
 
@@ -266,7 +267,6 @@ loadStepsSync = ->
 Loads the configuration file.
 ###
 loadConfigSync = (browser=null)-> 
-  config ?= {}
   fsUtil.evaluateFilesSync BASE_DIR, 'config.coffee'
   
   if browser? then config.browsers = [config.browsers[browser - 1]]
