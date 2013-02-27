@@ -6,7 +6,6 @@ BASE_DIR        = 'test/acceptance'
 stories         = []
 selectedStories = []
 global.config   = {browsers: []}
-global.steps = {}
 
 
 ###
@@ -259,7 +258,7 @@ getStoriesSync = ->
 Loads the set of step files.
 ###
 loadStepsSync = -> 
-  steps = {}
+  global.steps = {}
   # Each step file adds one or more a functions as properties to this object.
   fsUtil.evaluateFilesSync BASE_DIR, 'steps.coffee'
 
@@ -268,7 +267,6 @@ loadStepsSync = ->
 Loads the configuration file.
 ###
 loadConfigSync = (browser=null)-> 
-  config = {}
   fsUtil.evaluateFilesSync BASE_DIR, 'config.coffee'
   
   if browser? then config.browsers = [config.browsers[browser - 1]]
