@@ -328,6 +328,37 @@ module.exports =
       
         callback? err, data
 
+    ###
+    RemoteWebDriver: Elements.
+    @see:
+      http://code.google.com/p/selenium/wiki/JsonWireProtocol#POST_/session/:sessionId/element.
+    @param value:     Elements to search for.
+    @param callback:  Callback.
+    @options using:   Locator strategy to use. Defaults to 'id'.
+    @returns: Selenium WebElement ID or null if element not found.
+    ###    
+    _driver_elements: (value, opts={}, callback) ->
+      opts.using ?= 'id'
+      url = @_getSauceDriverUrl 'elements'
+    
+      data = JSON.stringify {
+        using: opts.using
+        value: value
+      }
+      
+      @_callService url, 'post', data, (err, data, response) ->
+        # TODO: Check general error handling. 
+        # Am I doing it right, or should we be doing more throwing and catching instead
+        # of passing.
+        
+        # If we get a 500, that means the element wasn't found.
+        if err? && response.statusCode is 500
+          err = data = null
+        else 
+          data = data.value.ELEMENT
+      
+        callback? err, data
+
 
     ###
     Wrapper for RemoteWebDriver element/click that takes a locator strategy and search value.
