@@ -78,10 +78,11 @@ module.exports =
             # Set up the callback for the scenario (also kicks it off).
             browser.end (err) ->
               browser.quit (quitErr) ->
-                err ?= quitErr
+                err = quitErr if not err?
                 
                 browser.setSauceSuccess !err?, (sauceSuccessErr) ->
-                  err ?= sauceSuccessErr
+                  #err ?= sauceSuccessErr
+                  err = sauceSuccessErr if not err?
                   
                   if err?
                     err.storyTitle = title
@@ -258,7 +259,7 @@ Loads the set of step files.
 ###
 loadStepsSync = -> 
   # Each step file adds one or more a functions as properties to this object.
-  steps ?= {}
+  global.steps = {} if not global.steps?
   fsUtil.evaluateFilesSync BASE_DIR, 'steps.coffee'
 
 
@@ -266,7 +267,6 @@ loadStepsSync = ->
 Loads the configuration file.
 ###
 loadConfigSync = (browser=null)-> 
-  config ?= {}
   fsUtil.evaluateFilesSync BASE_DIR, 'config.coffee'
   
   if browser? then config.browsers = [config.browsers[browser - 1]]
