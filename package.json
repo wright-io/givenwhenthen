@@ -28,7 +28,7 @@
 		"open.core": "0.1.209",
 		"coffee-script": "1.4.0",
 		"jasmine-node": ">= 1.0.6",
-		"restler": ">= 0.2.3"
+		"restler": "0.2.3"
   },
 
   "scripts": {
