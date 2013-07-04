@@ -262,6 +262,10 @@ module.exports =
       request.on 'error', (data, response) ->
         err = new Error "Response code: #{response.statusCode} - #{JSON.stringify data}"
         callback? err, data, response
+
+      request.on 'fail', (data, response) ->
+        err = new Error "Response code: #{response.statusCode} - #{JSON.stringify data}"
+        callback? err, data, response
       
       request.on 'success', (data, response) ->
         callback? null, data, response
